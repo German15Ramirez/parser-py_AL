@@ -4,19 +4,41 @@
  */
 package Code;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import javax.swing.Timer;
+import Code.Directory;
+import java.nio.file.Files;
+
+
 /**
  *
  * @author ryoumen_kyoma
  */
 public class VisualForm extends javax.swing.JFrame {
+private String titulo;
+private Directory directorio;
+private ArrayList<Token> token;
+private ArrayList<ErrorLexico> errores;
+private ArrayList <ColoresPalabras> palabrasColors;
+private Timer timercolor;
+private HashMap<String, String> identificadores;
+
 
     /**
      * Creates new form VisualForm
      */
     public VisualForm() {
         initComponents();
+        init();
     }
-
+private void init(){
+titulo="Parser-py";
+    setLocationRelativeTo(null);
+    setTitle(titulo);
+    directorio = Files.newDirectory(this,jTextPane1,titulo,".txt");
+    
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
