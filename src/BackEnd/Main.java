@@ -15,6 +15,7 @@ public class Main {
     EntornoVisual inicio = new EntornoVisual();
     inicio.setLocationRelativeTo(null);
     inicio.setVisible(true);
+      
     
     }
       

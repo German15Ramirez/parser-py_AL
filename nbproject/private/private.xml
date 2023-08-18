@@ -3,11 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/ryoumen_kyoma/Documentos/NetBeansProjects/parser-py_AL/src/BackEnd/Main.java</file>
-            <file>file:/home/ryoumen_kyoma/Documentos/NetBeansProjects/parser-py_AL/src/BackEnd/Herramientas/NumerarLineas.java</file>
-            <file>file:/home/ryoumen_kyoma/Documentos/NetBeansProjects/parser-py_AL/src/FrontEnd/EntornoVisual.java</file>
-            <file>file:/home/ryoumen_kyoma/Documentos/NetBeansProjects/parser-py_AL/src/BackEnd/Herramientas/OpenFile.java</file>
-            <file>file:/home/ryoumen_kyoma/Documentos/NetBeansProjects/parser-py_AL/src/BackEnd/Herramientas/NumeracionLineas.java</file>
+            <file>file:/home/ryoumen_kyoma/Documentos/parser-py_AL/src/BackEnd/Herramientas/TokensList.java</file>
+            <file>file:/home/ryoumen_kyoma/Documentos/parser-py_AL/src/FrontEnd/EntornoVisual.java</file>
         </group>
     </open-files>
 </project-private>
