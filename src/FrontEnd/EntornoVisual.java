@@ -29,6 +29,7 @@ public class EntornoVisual extends javax.swing.JFrame {
      */
     public EntornoVisual() {
         initComponents();
+        
         numeroLineaJtext = new NumeracionDeLineas(jTextPane1);
         jScrollPane1.setRowHeaderView(numeroLineaJtext);
         numeroLineaJArea = new NumeracionDeLineas(jTextArea1);
@@ -127,27 +128,70 @@ public class EntornoVisual extends javax.swing.JFrame {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
                 {null, null, null, null, null}
             },
             new String [] {
                 "TOKEN", "Patron", "Lexema", "Linea", "Columna"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jTable1.setOpaque(false);
         jTable1.setPreferredSize(new java.awt.Dimension(375, 80));
         jTable1.setSelectionBackground(new java.awt.Color(255, 255, 255));
         jTable1.setShowGrid(false);
         jTable1.setShowHorizontalLines(true);
         jTable1.setShowVerticalLines(true);
+        jTable1.getTableHeader().setReorderingAllowed(false);
+        jTable1.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                jTable1ComponentResized(evt);
+            }
+        });
         jScrollPane4.setViewportView(jTable1);
         if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setResizable(false);
-            jTable1.getColumnModel().getColumn(1).setResizable(false);
-            jTable1.getColumnModel().getColumn(2).setResizable(false);
             jTable1.getColumnModel().getColumn(2).setPreferredWidth(60);
-            jTable1.getColumnModel().getColumn(3).setResizable(false);
             jTable1.getColumnModel().getColumn(3).setPreferredWidth(30);
-            jTable1.getColumnModel().getColumn(4).setResizable(false);
             jTable1.getColumnModel().getColumn(4).setPreferredWidth(30);
         }
 
@@ -186,7 +230,8 @@ public class EntornoVisual extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-    String input = jTextPane1.getText();
+    
+        String input = jTextPane1.getText();
     Lexer lexer = new Lexer(input, 0);
 DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
@@ -201,11 +246,22 @@ centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
 jTable1.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
     DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
     tableModel.setRowCount(0);
+    jTable1.repaint();
+     
+
     Token token;
     while ((token = lexer.getNextToken()) != null) {
         tableModel.addRow(new Object[]{token.tokensList, 0,token.valor, token.lineNumber, token.columnNumber});
+        
     }
+    
+  
+    
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jTable1ComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jTable1ComponentResized
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTable1ComponentResized
 
     /**
      * @param args the command line arguments
