@@ -60,9 +60,9 @@ public class EntornoVisual extends javax.swing.JFrame {
         jTextPane1 = new javax.swing.JTextPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -121,87 +121,26 @@ public class EntornoVisual extends javax.swing.JFrame {
 
         jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 510, 1120, 170));
 
-        jTable1.setBackground(new java.awt.Color(255, 255, 255));
-        jTable1.setForeground(new java.awt.Color(0, 0, 0));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jLabel3.setBackground(new java.awt.Color(0, 255, 255));
+        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel3.setText("Columna = ");
+        jLabel3.setOpaque(true);
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
+
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null}
             },
             new String [] {
-                "TOKEN", "Patron", "Lexema", "Linea", "Columna"
+                "TOKEN", "Lexema", "Patron", "Linea", "Columna"
             }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
-            };
+        ));
+        jScrollPane3.setViewportView(jTable2);
 
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jTable1.setOpaque(false);
-        jTable1.setPreferredSize(new java.awt.Dimension(375, 80));
-        jTable1.setSelectionBackground(new java.awt.Color(255, 255, 255));
-        jTable1.setShowGrid(false);
-        jTable1.setShowHorizontalLines(true);
-        jTable1.setShowVerticalLines(true);
-        jTable1.getTableHeader().setReorderingAllowed(false);
-        jTable1.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                jTable1ComponentResized(evt);
-            }
-        });
-        jScrollPane4.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(2).setPreferredWidth(60);
-            jTable1.getColumnModel().getColumn(3).setPreferredWidth(30);
-            jTable1.getColumnModel().getColumn(4).setPreferredWidth(30);
-        }
-
-        jPanel1.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 20, 530, 430));
-
-        jLabel3.setBackground(new java.awt.Color(0, 255, 255));
-        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel3.setText("Columna = ");
-        jLabel3.setOpaque(true);
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
+        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 17, 520, 470));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/binary-code-background-digital-binary-data-with-streaming-digital-code-futuristic-cyberspace_1.jpg"))); // NOI18N
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1150, 710));
@@ -235,18 +174,18 @@ public class EntornoVisual extends javax.swing.JFrame {
     Lexer lexer = new Lexer(input, 0);
 DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable1.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+jTable2.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
 centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable1.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+jTable2.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
 centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable1.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
+jTable2.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
 centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable1.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
+jTable2.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
 centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable1.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-    DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
+jTable2.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+    DefaultTableModel tableModel = (DefaultTableModel) jTable2.getModel();
     tableModel.setRowCount(0);
-    jTable1.repaint();
+    jTable2.repaint();
      
 
     Token token;
@@ -258,10 +197,6 @@ jTable1.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
   
     
     }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jTable1ComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jTable1ComponentResized
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTable1ComponentResized
 
     /**
      * @param args the command line arguments
@@ -313,8 +248,8 @@ jTable1.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTable jTable2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextPane jTextPane1;
     // End of variables declaration//GEN-END:variables
