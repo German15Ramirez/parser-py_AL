@@ -5,221 +5,330 @@
 package FrontEnd;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import BackEnd.Herramientas.*;
 
 /**
  *
  * @author ryoumen_kyoma
  */
-enum TokenType {
-    SUMA,
-    RESTA,
-    EXPONENTE,
-    DIVISION,
-    MODULO,
-    MULTIPLICACION,
-    IGUAL,
-    DIFERENTE,
-    MAYOR_QUE,
-    MENOR_QUE,
-    MAYOR_O_IGUAL_QUE,
-    MENOR_O_IGUAL_QUE,
-    Y,
-    O,
-    NEGACION,
-    ASIGNACION,
-    PALABRA_RESERVADA,
-    ENTERO,
-    DECIMAL,
-    CADENA,
-    BOOLEANAS,
-    COMENTARIO,
-    PARENTESIS,
-    LLAVES,
-    CORCHETES,
-    PUNTO,
-    COMA,
-    PUNTO_Y_COMA,
-    DOS_PUNTOS,
-    IDENTIFICADOR,
-}
-
-class Token {
-
-    TokenType tokensList;
-    String valor;
-    int lineNumber;
-    int columnNumber;
-
-    Token(TokenType tokensList, String valor, int lineNumber, int columnNumber) {
-        this.tokensList = tokensList;
-        this.valor = valor;
-        this.lineNumber = lineNumber;
-        this.columnNumber = columnNumber;
-
-    }
-}
-
-class Lexer {
+public class Lexer {
 
     private String inputString;
     private int posicionActual;
     private int currentLine;
     private int currentColumn;
+    private Map<String, ListTokens> Tokens;
+    private ArrayList<Token> listado;
 
-    List<Token> analyzeTokens() {
-        List<Token> tokens = new ArrayList<>();
-        Token token;
-        while ((token = getNextToken()) != null) {
-            tokens.add(token);
-        }
-        return tokens;
+    public ArrayList<Token> getListado() {
+        return this.listado;
     }
 
-    Lexer(String inputString, int posicionActual) {
-        this.inputString = inputString;
+    public Lexer(ArrayList<Token> listado) {
+        this.listado = listado;
+        iniciarAlmacen();
+    }
+
+    public void analize(String inputString) {
+        String buffer = "";
+        char[] inputChar = inputString.toCharArray();
         this.posicionActual = posicionActual >= 0 ? posicionActual : 0;
         this.currentLine = 1;
         this.currentColumn = 1;
-    }
-
-    Token getNextToken() {
-        if (posicionActual >= inputString.length()) {
-            return null;
-        }
-        char currentChar = inputString.charAt(posicionActual);
-
-        Token token;
-        switch (currentChar) {
-            //aqui van los de un caracter, el punto no va, ya que solo sirve para separar un entero de un decimal
-            case '+':
-                token = new Token(TokenType.SUMA, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case '-':
-                token = new Token(TokenType.RESTA, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case '(':
-                token = new Token(TokenType.PARENTESIS, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case ')':
-                token = new Token(TokenType.PARENTESIS, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case '{':
-                token = new Token(TokenType.LLAVES, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case '}':
-                token = new Token(TokenType.LLAVES, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case '[':
-                token = new Token(TokenType.CORCHETES, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case ']':
-                token = new Token(TokenType.CORCHETES, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case ',':
-                token = new Token(TokenType.COMA, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case ';':
-                token = new Token(TokenType.PUNTO_Y_COMA, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case ':':
-                token = new Token(TokenType.DOS_PUNTOS, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            case '%':
-                token = new Token(TokenType.MODULO, String.valueOf(currentChar), currentLine, currentColumn);
-                avanzarCoordenadas(1);
-                return token;
-            //aqui van los que son de mas de un caracter
-            case '>':
-                avanzarCoordenadas(1);
-        if (posicionActual < inputString.length() && inputString.charAt(posicionActual) == '=') {
-            token = new Token(TokenType.MAYOR_O_IGUAL_QUE, ">=", currentLine, currentColumn);
-            avanzarCoordenadas(1); // Avanzar dos caracteres
-            return token;
-        } else {
-            token = new Token(TokenType.MAYOR_QUE, ">", currentLine, currentColumn);
-            return token;
-            }
-            case '<':
-                avanzarCoordenadas(1);
-        if (posicionActual < inputString.length() && inputString.charAt(posicionActual) == '=') {
-            token = new Token(TokenType.MENOR_O_IGUAL_QUE, "<=", currentLine, currentColumn);
-            avanzarCoordenadas(1); // Avanzar dos caracteres
-            return token;
-        } else {
-            token = new Token(TokenType.MENOR_QUE, "<", currentLine, currentColumn);
-            return token;
-            }
-            case '=':
-               avanzarCoordenadas(1);
-                if (posicionActual < inputString.length() && inputString.charAt(posicionActual) == '=') {
-                    token = new Token(TokenType.IGUAL, "==", currentLine, currentColumn);
-                    avanzarCoordenadas(1);
-                    return token;
-                } else {
-                    token = new Token(TokenType.ASIGNACION, "=", currentLine, currentColumn);
-                    return token;
-                }
-            case '*':
-                avanzarCoordenadas(1);
-                if (posicionActual < inputString.length() && inputString.charAt(posicionActual) == '*') {
-                    token = new Token(TokenType.EXPONENTE, "**", currentLine, currentColumn);
-                    avanzarCoordenadas(1);
-                    return token;
-                } else {
-                    token = new Token(TokenType.MULTIPLICACION, "*", currentLine, currentColumn);
-                    return token;
-                }
-            case '/':
-                avanzarCoordenadas(1);
-                if (posicionActual < inputString.length() && inputString.charAt(posicionActual) == '/') {
-                    token = new Token(TokenType.DIVISION, "//", currentLine, currentColumn);
-                    avanzarCoordenadas(1);
-                    return token;
-                } else {
-                    token = new Token(TokenType.DIVISION, "/", currentLine, currentColumn);
-                    return token;
+        boolean typeCadena = false;
+        boolean typeComentario = false;
+        for (char letter : inputChar) {
+            if (typeCadena) {
+                buffer = buffer + letter;
+                if (letter == '"' || letter == '\'') {
+                    typeCadena = false;
+                    createToken(buffer, currentLine, currentColumn);
+                    buffer = "";
                 }
 
-            default:
-                avanzarCoordenadas(1);
-                return getNextToken();
-        }
-    }
+            } else if (typeComentario) {
+                buffer = buffer + letter;
+                if (letter == '\n') {
+                    typeComentario = false;
+                    createToken(buffer, currentLine, currentColumn);
+                    buffer = "";
+                }
 
-    private void avanzarCoordenadas(int avance) {
-        for (int i = 0; i < avance; i++) {
-            if (posicionActual >= inputString.length()) {
-                break;
-            }
-            char currentChar = inputString.charAt(posicionActual);
-            if (currentChar == '\n') {
-                currentLine++;
-                currentColumn = 1; // Reiniciar la columna al inicio de una nueva línea
             } else {
-                currentColumn++;
+                switch (letter) {
+                    case '\t':
+                    case ' ':
+                        if (!buffer.isEmpty()) {
+                            createToken(buffer, currentLine, currentColumn);
+                            buffer = "";
+
+                        }
+                        currentColumn++;
+
+                        break;
+                        case '\n':
+                currentLine++;
+                currentColumn = 1; // Reiniciar la columna a 1 en cada nueva línea
+                if (!buffer.isEmpty()) {
+                    createToken(buffer, currentLine, currentColumn);
+                    buffer = "";
+                }
+                break;
+                    case '#':
+                        if (!buffer.isEmpty()) {
+                            createToken(buffer, currentLine, currentColumn);
+                            buffer = "";
+                        }
+                        buffer = buffer + letter;
+                        typeComentario = true;
+                        currentColumn++;
+                        break;
+                    case '"':
+                    case '\'':
+                        if (!buffer.isEmpty()) {
+                            createToken(buffer, currentLine, currentColumn);
+                            buffer = "";
+                        }
+                        if (typeCadena) {
+                            buffer = buffer + letter;
+                            typeCadena = false;
+                            createToken(buffer, currentLine, currentColumn);
+                            buffer = "";
+                        } else {
+                            buffer = buffer + letter;
+                            typeCadena = true;
+                        }
+                        currentColumn++;
+                        break;
+                    default:
+                        switch (letter) {
+                            case '%':
+                            case '*':
+                            case '+':
+                            case '-':
+                            case '/':
+                                if (!buffer.isEmpty()) {
+                                    createToken(buffer, currentLine, currentColumn);
+                                    buffer = "";
+                                }
+                                createToken(String.valueOf(letter), currentLine, currentColumn);
+                                currentColumn++;
+                                break;
+                            case '=':
+
+                                this.listado.add(new Token(ListTokens.ASIGNACION.toString(), "=", "=", currentLine, currentColumn));
+                                break;
+                            case '!':
+                            case '<':
+                            case '>':
+                                if (!buffer.isEmpty()) {
+                                    createToken(buffer, currentLine, currentColumn);
+                                    buffer = "";
+                                }
+                                buffer = buffer + letter;
+                                createToken(buffer, currentLine, currentColumn);
+                                buffer = "";
+                                currentColumn++;
+                                break;
+                            case '|':
+                                if (!buffer.isEmpty()) {
+                                    createToken(buffer, currentLine, currentColumn);
+                                    buffer = "";
+                                }
+                                if (currentColumn < inputChar.length - 1 && inputChar[currentColumn] == '|') {
+                                    buffer = "||";
+                                    createToken(buffer, currentLine, currentColumn);
+                                    buffer = "";
+                                    currentColumn++;
+                                }
+                                break;
+                            case '(':
+                            case ')':
+                            case ',':
+                            case ':':
+                            case ';':
+                            case '[':
+                            case ']':
+                            case '{':
+                            case '}':
+                                if (!buffer.isEmpty()) {
+                                    createToken(buffer, currentLine, currentColumn);
+                                    buffer = "";
+                                }
+                                buffer = buffer + letter;
+                                createToken(buffer, currentLine, currentColumn);
+                                buffer = "";
+                                currentColumn++;
+                                break;
+                        }
+                        if (typeIdentificador(buffer)) {
+                            if (this.Tokens.containsKey(buffer)) {
+                                createToken(buffer, currentLine, currentColumn);
+                                buffer = "";
+                            } else {
+                                buffer = buffer + letter;
+                            }
+                            currentColumn++;
+                            break;
+                        }
+                        buffer = buffer + letter;
+                        currentColumn++;
+                        break;
+                }
             }
-            posicionActual++;
         }
+        if (typeCadena) {
+            createToken("error " + buffer, currentLine, currentColumn);
+            buffer = "";
+        }
+
     }
 
-    // Métodos públicos para acceder a la información de línea y columna
-    public int getCurrentLine() {
-        return currentLine;
+    private void createToken(String lexema, int currentLine, int currentColumn) {
+        if (typeNumero(lexema)) {
+            if (lexema.contains(".")) {
+                this.listado.add(new Token(ListTokens.CONST_DECIMAL.toString(), "[0-9]+\\.[0-9]+", lexema, currentLine, currentColumn));
+            } else {
+                this.listado.add(new Token(ListTokens.CONST_ENTERO.toString(), "[0-9]+", lexema, currentLine, currentColumn));
+            }
+        } else if (typeCadena(lexema)) {
+            this.listado.add(new Token(ListTokens.CONST_CADENA.toString(), "((\"[a-z]*[0-9]*\") | (\"[A-Z]*[0-9])\") | (('[a-z]*[0-9]*') | ('[A-Z]*[0-9])')", lexema, currentLine, currentColumn));
+
+        } else if (this.Tokens.containsKey(lexema)) {
+            ListTokens typeTokens = this.Tokens.get(lexema);
+            if (typeTokens == ListTokens.OTROS_IDENTIFICADOR) {
+                this.listado.add(new Token(ListTokens.PALABRA_RESERVADA.toString(), "", lexema, currentLine, currentColumn));
+            } else {
+                this.listado.add(new Token(typeTokens.toString(), "", lexema, currentLine, currentColumn));
+
+            }
+
+        } else if (lexema.contains("#")) {
+            this.listado.add(new Token(ListTokens.COMENTARIO.toString(), "(#[0-9]*[a-z]* | #[0-9]*[A-Z]* #[a-z]*[0-9]* | #[A-Z]*[0-9]*)", lexema, currentLine, currentColumn));
+        } else if (lexema.contains("Error")) {
+            String[] text = lexema.split("error");
+            this.listado.add(new Token(ListTokens.ERROR_LEXICO.toString(), "no existe", lexema, currentLine, currentColumn));
+        } else if (lexema.contains("_")) {
+            char[] text = lexema.toCharArray();
+            String inicial = String.valueOf(text[0]);
+            boolean startNumber = false;
+            startNumber = typeNumero(inicial);
+            if (startNumber) {
+                this.listado.add(new Token(ListTokens.ERROR_LEXICO.toString(), "no existe", lexema, currentLine, currentColumn));
+            } else {
+                this.listado.add(new Token(ListTokens.OTROS_IDENTIFICADOR.toString(), "([w]|_)+(w|d)*", lexema, currentLine, currentColumn));
+            }
+        } else if (isComparativeOperator(lexema)) {
+        // Agregar los tokens de comparación
+        this.listado.add(new Token(getComparativeOperatorCategory(lexema).toString(), lexema, lexema, currentLine, currentColumn));
+    } else {
+        // Agregar otros tokens
+        this.listado.add(new Token(ListTokens.ERROR_LEXICO.toString(), lexema, lexema, currentLine, currentColumn));
+    }
+        }
+
+    
+private boolean isComparativeOperator(String lexema) {
+    return lexema.equals("==") || lexema.equals("!=") || lexema.equals(">") ||
+           lexema.equals("<") || lexema.equals(">=") || lexema.equals("<=");
+}
+private ListTokens getComparativeOperatorCategory(String lexema) {
+    switch (lexema) {
+        case "==":
+            return ListTokens.COMPARA_IGUAL;
+        case "!=":
+            return ListTokens.COMPARA_DIFERENTE;
+        case ">":
+            return ListTokens.COMPARA_MAYOR_QUE;
+        case "<":
+            return ListTokens.COMPARA_MENOR_QUE;
+        case ">=":
+            return ListTokens.COMPARA_MAYOR_O_IGUAL_QUE;
+        case "<=":
+            return ListTokens.COMPARA_MENOR_O_IGUAL_QUE;
+        default:
+            return ListTokens.ERROR_LEXICO; // En caso de algún error
+    }
+}
+    private boolean typeNumero(String lexema) {
+    try {
+        Integer.parseInt(lexema);
+        return true;
+    } catch (NumberFormatException e1) {
+        try {
+            Double.parseDouble(lexema);
+            return true;
+        } catch (NumberFormatException e2) {
+            return false;
+        }
+    }}
+
+    private boolean typeCadena(String lexema) {
+        return ((lexema.startsWith("\"") && lexema.endsWith("\"")) || (lexema.startsWith("'") && lexema.endsWith("'")));
     }
 
-    public int getCurrentColumn() {
-        return currentColumn;
+    private boolean typeIdentificador(String lexema) {
+        return !this.Tokens.containsKey(lexema);
+    }
+
+    private void iniciarAlmacen() {
+        this.Tokens = new HashMap<>();
+        this.Tokens.put("+", ListTokens.ARIT_SUMA);
+        this.Tokens.put("-", ListTokens.ARIT_RESTA);
+        this.Tokens.put("**", ListTokens.ARIT_EXPONENTE);
+        this.Tokens.put("/", ListTokens.ARIT_DIVISION);
+        this.Tokens.put("//", ListTokens.ARIT_DIVISION);
+        this.Tokens.put("%", ListTokens.ARIT_MODULO);
+        this.Tokens.put("*", ListTokens.ARIT_MULTIPLICACION);
+        this.Tokens.put("==", ListTokens.COMPARA_IGUAL);
+        this.Tokens.put("!=", ListTokens.COMPARA_DIFERENTE);
+        this.Tokens.put(">", ListTokens.COMPARA_MAYOR_QUE);
+        this.Tokens.put("<", ListTokens.COMPARA_MENOR_QUE);
+        this.Tokens.put(">=", ListTokens.COMPARA_MAYOR_O_IGUAL_QUE);
+        this.Tokens.put("<=", ListTokens.COMPARA_MENOR_O_IGUAL_QUE);
+        this.Tokens.put("and", ListTokens.LOGIC_Y);
+        this.Tokens.put("or", ListTokens.LOGIC_O);
+        this.Tokens.put("not", ListTokens.LOGIC_NEGACION);
+        this.Tokens.put("=", ListTokens.ASIGNACION);
+        this.Tokens.put("as", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("assert", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("break", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("class", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("continue", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("def", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("del", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("elif", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("else", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("except", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("finally", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("from", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("for", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("global", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("if", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("import", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("in", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("is", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("lambda", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("None", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("nonlocal", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("pass", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("raise", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("return", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("try", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("while", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("with", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("yeald", ListTokens.PALABRA_RESERVADA);
+        this.Tokens.put("(", ListTokens.OTROS_PARENTESIS);
+        this.Tokens.put(")", ListTokens.OTROS_PARENTESIS);
+        this.Tokens.put("{", ListTokens.OTROS_LLAVES);
+        this.Tokens.put("}", ListTokens.OTROS_LLAVES);
+        this.Tokens.put("[", ListTokens.OTROS_CORCHETES);
+        this.Tokens.put("]", ListTokens.OTROS_CORCHETES);
+        this.Tokens.put(",", ListTokens.OTROS_COMA);
+        this.Tokens.put(";", ListTokens.OTROS_PUNTO_Y_COMA);
+        this.Tokens.put(":", ListTokens.OTROS_DOS_PUNTOS);
+
     }
 }

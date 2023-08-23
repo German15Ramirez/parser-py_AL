@@ -5,41 +5,41 @@
 package FrontEnd;
 
 import BackEnd.Herramientas.*;
-import java.awt.List;
-import javax.swing.JOptionPane;
+import BackEnd.Herramientas.NumeracionColumnas;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import javax.swing.JTable;
+import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-
 
 /**
  *
  * @author ryoumen_kyoma
  */
 public class EntornoVisual extends javax.swing.JFrame {
-    NumeracionDeLineas numeroLineaJtext ;
-    NumeracionDeLineas numeroLineaJArea ;
+
+    NumeracionFilas numeroLineaJtext;
+    NumeracionFilas numeroLineaJArea;
     NumeracionColumnas numeracionColumnas;
-    
-  
-    
+
     /**
      * Creates new form VisualForm
      */
     public EntornoVisual() {
         initComponents();
-        
-        numeroLineaJtext = new NumeracionDeLineas(jTextPane1);
+        numeroLineaJtext = new NumeracionFilas(jTextPane1);
         jScrollPane1.setRowHeaderView(numeroLineaJtext);
-        numeroLineaJArea = new NumeracionDeLineas(jTextArea1);
+        numeroLineaJArea = new NumeracionFilas(jTextArea1);
         jScrollPane2.setRowHeaderView(numeroLineaJArea);
         //aqui debe ir para la creacion de las lineas
         numeracionColumnas = new NumeracionColumnas(jTextPane1, jLabel3);
         
-        
-        
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -61,8 +61,8 @@ public class EntornoVisual extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jLabel3 = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -83,6 +83,11 @@ public class EntornoVisual extends javax.swing.JFrame {
         jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 140, 30));
 
         jButton3.setText("Ayuda");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
         jPanel1.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 10, 90, 30));
 
         jButton4.setText("Acerca de");
@@ -111,15 +116,17 @@ public class EntornoVisual extends javax.swing.JFrame {
         jLabel2.setOpaque(true);
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 460, 110, 30));
 
+        jTextPane1.setFont(new java.awt.Font("SansSerif", 0, 13)); // NOI18N
         jScrollPane1.setViewportView(jTextPane1);
 
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 580, 370));
 
         jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("SansSerif", 0, 13)); // NOI18N
         jTextArea1.setRows(5);
         jScrollPane2.setViewportView(jTextArea1);
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 510, 1120, 170));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 510, 1400, 170));
 
         jLabel3.setBackground(new java.awt.Color(0, 255, 255));
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
@@ -127,7 +134,7 @@ public class EntornoVisual extends javax.swing.JFrame {
         jLabel3.setOpaque(true);
         jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -135,15 +142,15 @@ public class EntornoVisual extends javax.swing.JFrame {
                 {null, null, null, null, null}
             },
             new String [] {
-                "TOKEN", "Lexema", "Patron", "Linea", "Columna"
+                "TOKEN", "Patron", "Lexema", "Fila", "Columna"
             }
         ));
-        jScrollPane3.setViewportView(jTable2);
+        jScrollPane4.setViewportView(jTable1);
 
-        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 17, 520, 470));
+        jPanel1.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 17, 810, 480));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/binary-code-background-digital-binary-data-with-streaming-digital-code-futuristic-cyberspace_1.jpg"))); // NOI18N
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1150, 710));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1450, 710));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -160,7 +167,7 @@ public class EntornoVisual extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
- JOptionPane.showMessageDialog(null, "Este programa es un analizador de código basado en phyton, conforme pase el tiempo, se haran actualizaciones complentandolo hasta que sea un compilador basico");        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(null, "Este programa es un analizador de código basado en phyton, conforme pase el tiempo, se haran actualizaciones complentandolo hasta que sea un compilador basico");        // TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -169,34 +176,63 @@ public class EntornoVisual extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-    
         String input = jTextPane1.getText();
-    Lexer lexer = new Lexer(input, 0);
-DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable2.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
-centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable2.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
-centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable2.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
-centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable2.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
-centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-jTable2.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-    DefaultTableModel tableModel = (DefaultTableModel) jTable2.getModel();
-    tableModel.setRowCount(0);
-    jTable2.repaint();
-     
+   
+    Lexer lexer = new Lexer(new ArrayList<>());
+    lexer.analize(input);
+    List<Token> tokens = lexer.getListado();
 
-    Token token;
-    while ((token = lexer.getNextToken()) != null) {
-        tableModel.addRow(new Object[]{token.tokensList, 0,token.valor, token.lineNumber, token.columnNumber});
-        
+    DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
+    tableModel.setRowCount(0); // Limpia el contenido actual de la tabla
+    
+    for (Token token : tokens) {
+        tableModel.addRow(new Object[]{
+            token.getToken().toString(), token.getLexema(), token.getValor(), token.getCurrentLine(), token.getCurrentColumn()
+        });
     }
     
-  
-    
+    DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
+        jTable1.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+        centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
+        jTable1.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+        centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
+        jTable1.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
+        centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
+        jTable1.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
+        centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
+        jTable1.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+
+    // Colorear los tokens en el JTextPane
+    ColoreoTokens colorizer = new ColoreoTokens(jTextPane1);
+    colorizer.ColorearTokens(tokens);
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+
+        int choice = JOptionPane.showOptionDialog(
+                null,
+                "¿Deseas ir al tutorial?",
+                "Opción",
+                JOptionPane.YES_NO_OPTION, 
+                JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new String[]{"Ir al tutorial", "Cerrar"},
+                        "Ir al tutorial"
+                );
+                
+                if (choice == JOptionPane.YES_OPTION) {
+                    try {
+                        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                            Desktop.getDesktop().browse(new URI("https://youtu.be/miInS1-qfk4"));
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Abre el siguiente enlace en tu navegador:\nhttps://youtu.be/miInS1-qfk4");
+                        }
+                    } catch (IOException | URISyntaxException ex) {
+                        ex.printStackTrace();
+                    }}
+      
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -231,9 +267,9 @@ jTable2.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
             public void run() {
                 new EntornoVisual().setVisible(true);
             }
+            
         });
-        
-        
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -248,8 +284,8 @@ jTable2.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTable jTable2;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTable jTable1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextPane jTextPane1;
     // End of variables declaration//GEN-END:variables

@@ -10,14 +10,14 @@ import javax.swing.text.*;
  *
  * @author ryoumen_kyoma
  */
-public class NumeracionDeLineas extends JPanel
+public class NumeracionFilas extends JPanel
         implements CaretListener, DocumentListener {
 
     private JTextComponent component;
     private JTextArea textArea;  
     private int lastLine;
 
-    public NumeracionDeLineas(JTextComponent component) {
+    public NumeracionFilas(JTextComponent component) {
         this.component = component;
 
         setLayout(new BorderLayout());
@@ -56,7 +56,7 @@ public class NumeracionDeLineas extends JPanel
                 startOffset = Utilities.getRowEnd(component, startOffset) + 1;
                 currentLine++;
             } catch (BadLocationException ex) {
-                Logger.getLogger(NumeracionDeLineas.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(NumeracionFilas.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

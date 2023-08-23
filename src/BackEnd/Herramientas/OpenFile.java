@@ -44,5 +44,30 @@ public class OpenFile {
             JOptionPane.showMessageDialog(null, "Error al cargar el archivo: " + e.getMessage(), "Error inesperado", JOptionPane.ERROR_MESSAGE);
         }
     }
+    public static String cleanAndNormalizeCode(String input) {
+    // Dividir el contenido en líneas
+    String[] lines = input.split("\\r?\\n");
+    
+    // Eliminar espacios en blanco excesivos y ajustar la indentación
+    StringBuilder cleanedContent = new StringBuilder();
+    int minIndent = Integer.MAX_VALUE;
+
+    for (String line : lines) {
+        String trimmedLine = line.trim();
+        if (!trimmedLine.isEmpty()) {
+            int indent = line.length() - trimmedLine.length();
+            minIndent = Math.min(minIndent, indent);
+        }
+    }
+
+    for (String line : lines) {
+        String trimmedLine = line.trim();
+        if (!trimmedLine.isEmpty()) {
+            cleanedContent.append(line.substring(minIndent)).append("\n");
+        }
+    }
+
+    return cleanedContent.toString();
+}
 }
 
