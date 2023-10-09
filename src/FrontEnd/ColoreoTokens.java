@@ -3,15 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package FrontEnd;
-import BackEnd.Herramientas.TokenType.TypeArtimetico;
-import BackEnd.Herramientas.TokenType.TypeAsignacion;
-import BackEnd.Herramientas.TokenType.TypeComentario;
-import BackEnd.Herramientas.TokenType.TypeComparacion;
-import BackEnd.Herramientas.TokenType.TypeConstante;
-import BackEnd.Herramientas.TokenType.TypeIdentificador;
-import BackEnd.Herramientas.TokenType.TypeLogico;
-import BackEnd.Herramientas.TokenType.TypeOtro;
-import BackEnd.Herramientas.TokenType.TypePalabraReservada;
+import BackEnd.Herramientas.TokenType.*;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
@@ -25,20 +17,29 @@ import javax.swing.SwingUtilities;
  */
 public class ColoreoTokens {
 
-     public static void colorPalabras(StyledDocument doc, String text, List<List<Object>> newListOfLists) {
+    public static void colorPalabras(StyledDocument doc, String text, List<List<Object>> tablaToken) {
         SwingUtilities.invokeLater(() -> {
             doc.setCharacterAttributes(0, text.length(), doc.getStyle("default"), true);
+            System.out.println("tablaToken: " + tablaToken);
 
-            for (List<Object> tabla : newListOfLists) {
-                Color color = getColorForTokenType(tabla.get(0));
-                String tokenValue = tabla.get(1).toString();
+            int startIndex = 0;
+            for (List<Object> fila : tablaToken) {
+                Object tokenType = fila.get(0);
+                Color color = getColorForTokenType(tokenType);
+                String tokenValue = fila.get(2).toString();
 
-                int startIndex = 0;
-                while ((startIndex = text.indexOf(tokenValue, startIndex)) >= 0) {
+                // Encuentra la posición de inicio del token en la sección actual del texto
+                int tokenStart = text.indexOf(tokenValue, startIndex);
+
+                // Si se encuentra el token en la sección actual del texto, aplica el estilo
+                if (tokenStart >= 0) {
+                    int tokenEnd = tokenStart + tokenValue.length();
                     Style style = doc.addStyle("MyStyle", null);
                     StyleConstants.setForeground(style, color);
-                    doc.setCharacterAttributes(startIndex, tokenValue.length(), style, false);
-                    startIndex += tokenValue.length();
+                    doc.setCharacterAttributes(tokenStart, tokenEnd - tokenStart, style, false);
+
+                    // Actualiza el índice de inicio para continuar desde el final del token
+                    startIndex = tokenEnd;
                 }
             }
         });
@@ -49,15 +50,16 @@ public class ColoreoTokens {
             return Color.BLACK;
         } else if (tokenType instanceof TypePalabraReservada) {
             return new Color(128, 0, 128);
-        } else if (tokenType instanceof TypeArtimetico || tokenType instanceof TypeComparacion || tokenType instanceof TypeLogico || tokenType instanceof TypeAsignacion) {
+        } else if (tokenType instanceof TypeAritmetico || tokenType instanceof TypeComparacion || tokenType instanceof TypeLogico || tokenType instanceof TypeAsignacion) {
             return new Color(0, 191, 255);
         } else if (tokenType instanceof TypeOtro) {
             return Color.GREEN;
         } else if (tokenType instanceof TypeConstante) {
-            return Color.RED;
+            return new Color(216, 112, 0);
         } else if (tokenType instanceof TypeComentario) {
             return Color.GRAY;
         } else {
+            System.out.println("Token desconocido: " + tokenType);
             return Color.DARK_GRAY; // Valor por defecto para tipos desconocidos
         }
     }

@@ -5,17 +5,13 @@
 package FrontEnd;
 import BackEnd.Herramientas.*;
 import BackEnd.Herramientas.TokenType.*;
-import static FrontEnd.EntornoVisual.newList;
-import static FrontEnd.EntornoVisual.newListOfLists;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -55,12 +51,53 @@ public class AnalisisLexico {
     }
 
     private void processToken(Token token, Lexer lexico, int fila) {
+        
         if (!isTypeSpace(token.type)) {
-            String tipo = token.type.toString();
+            String tipo = "";
+            String patron = "";
             String valor = token.value.toString();
+           
+            if(token.type instanceof TypeAritmetico){
+                tipo = "TypeArtimetico";
+                patron = "[" + token.value.toString() + "]";
+            }
+            if(token.type instanceof TypeComentario){
+                tipo = "TypeComentario";
+                patron = "#(\\\"[a-z]*[0-9]*\\\")"; // Patrón para comentarios: cualquier cosa hasta el final de la línea
+            }
+            if(token.type instanceof TypeAsignacion){
+                tipo = "TypeAsignacion";
+                patron = "[" + token.value.toString() + "]";
+            }
+            if(token.type instanceof TypeComparacion){
+                tipo = "TypeComparacion";
+                patron = "[" + token.value.toString() + "]";
+            }
+            if(token.type instanceof TypeConstante){
+                tipo = "TypeConstante";
+                patron = "((\\\"[a-z]*[0-9]*\\\") | (\\\"[A-Z]*[0-9])\\\") | (('[a-z]*[0-9]*') | ('[A-Z]*[0-9])')";
+            }
+            if(token.type instanceof TypeIdentificador){
+                tipo = "TypeIdentificador";
+                patron = "([\\\\w]|_)+(\\\\w|\\\\d)*";
+            }
+            if(token.type instanceof TypeLogico){
+                tipo = "TypeLogico";
+                patron = "[" + token.value.toString() + "]";
+            }
+            if(token.type instanceof TypeOtro){
+                tipo = "TypeOtro";
+                patron = "[" + token.value.toString() + "]";
+            }
+            if(token.type instanceof TypePalabraReservada){
+                tipo = "TypePalabraReservada";
+                patron = "[" + token.value.toString() + "]";
+            }
+            
+            
             String tokenText = tipo + ": " + valor + " fila : " + lexico.fila() + " columna : " + lexico.columna();
-            tablaToken.add(Arrays.asList(token.type, tipo.toLowerCase(), valor, lexico.fila(), lexico.columna()));
-            infoTabla.add(Arrays.asList(token.type, tipo, valor, lexico.fila(), lexico.columna()));
+            tablaToken.add(Arrays.asList(token.type,token.type.toString().toLowerCase(),token.value, lexico.fila(),lexico.columna()));
+            infoTabla.add(Arrays.asList(tipo + " = " + token.type,patron,token.value, lexico.fila(),lexico.columna()));
 
             if (mapTokens.containsKey(token.type)) {
                 valor = mapTokens.get(token.type).toString() + "," + valor;
@@ -79,5 +116,8 @@ public class AnalisisLexico {
 
     public List<List<Object>> getInfoTabla() {
         return infoTabla;
+    }
+    public List<List<Object>> getTablaToken() {
+        return tablaToken;
     }
 }

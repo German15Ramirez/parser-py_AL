@@ -19,9 +19,9 @@ import java.io.Reader;
  */
 public class Lexer {
 
-     private final Reader reader;
-    private int columna;
-    private int fila;
+    private final Reader reader;
+    public static int columna;
+    public static int fila;
     private int currentChar;
     private final ArrayList<Object> palabrasG;
 
@@ -34,6 +34,7 @@ public class Lexer {
         try {
             advance();
         } catch (IOException e) {
+            // Manejar la excepción adecuadamente
             e.printStackTrace();
         }
     }
@@ -56,14 +57,14 @@ public class Lexer {
         try {
             while (currentChar != -1) {
                 char current = currentChar();
-                if (Character.isWhitespace(current)) {
+                if (current == '*') {
                     advance();
-                    if (current == ' ') {
-                        return new Token(TypeSpace.SPACE, " ");
-                    } else if (current == '\n') {
-                        fila++;
-                        columna = 0;
-                        return new Token(TypeSpace.SALTO, "SALTO");
+                    char nextChar = currentChar();
+                    if (nextChar == '*') {
+                        advance();
+                        return new Token(TypeAritmetico.EXPONENTE, "**");
+                    } else {
+                        return new Token(TypeAritmetico.MULTIPLICACION, "*");
                     }
                 } else if (Character.isLetter(current)) {
                     return readLetter();
@@ -71,35 +72,89 @@ public class Lexer {
                     return readInteger();
                 } else if (current == '"') {
                     advance();
-                    return cadenaComDob('"');
+                    return cadenaComDob(current);
                 } else if (current == '\'') {
                     advance();
-                    return cadena('\'');
+                    return cadena(current);
                 } else if (isSingleCharacterToken(current)) {
                     advance();
                     return getSingleCharacterToken(current);
+                } else if (current == ' ') {
+                    advance();
+                    return new Token(TypeSpace.SPACE, " ");
+                } else if (Character.isWhitespace(current)) {
+                    advance();
+                    fila++;
+                    columna = 0; // Reiniciar columna al inicio de una nueva línea
+                    return new Token(TypeSpace.SALTO, "SALTO");
                 } else if (current == '#') {
                     advance();
                     return comentario();
-                } else if (current == '=' || current == '!' || current == '>' || current == '<' || current == '/') {
+                } else if (current == '=') {
                     advance();
-                    return handleSpecialTokens(current);
+                    char nextChar = currentChar();
+                    if (nextChar == '=') {
+                        advance();
+                        return new Token(TypeComparacion.IGUAL_QUE, "==");
+                    } else {
+                        return new Token(TypeAsignacion.ASIGNACION, "=");
+                    }
+                } else if (current == '!') {
+                    advance();
+                    char nextChar = currentChar();
+                    if (nextChar == '=') {
+                        advance();
+                        return new Token(TypeComparacion.DIFERENTE_DE, "!=");
+                    } else {
+                        return new Token(TypeAsignacion.ASIGNACION, "!");
+                    }
+                } else if (current == '>') {
+                    advance();
+                    char nextChar = currentChar();
+                    if (nextChar == '=') {
+                        advance();
+                        return new Token(TypeComparacion.MAYOR_O_IGUAL_QUE, ">=");
+                    } else {
+                        return new Token(TypeComparacion.MAYOR_QUE, ">");
+                    }
+                } else if (current == '<') {
+                    advance();
+                    char nextChar = currentChar();
+                    if (nextChar == '=') {
+                        advance();
+                        return new Token(TypeComparacion.MENOR_O_IGUAL_QUE, "<=");
+                    } else {
+                        return new Token(TypeComparacion.MENOR_QUE, "<");
+                    }
+                } else if (current == '/') {
+                    advance();
+                    char nextChar = currentChar();
+                    if (nextChar == '/') {
+                        advance();
+                        return new Token(TypeAritmetico.DIVISION, "//");
+                    } else {
+                        return new Token(TypeAritmetico.DIVISION, "/");
+                    }
                 } else {
+                    // Error: Carácter desconocido
                     advance();
                     return new Token(TypeOtro.ERROR_LEXICO, "Caracter Desconocido");
                 }
             }
             advance();
         } catch (IOException e) {
+            // Manejar la excepción adecuadamente
             e.printStackTrace();
         }
         fila++;
         columna = 0;
-        return new Token(TypeSpace.FINAL_ARCHIVE, "");
+
+        return new Token(TypeSpace.FINAL_ARCHIVE,
+                "");
     }
 
     private boolean isSingleCharacterToken(char current) {
-        return "(){}[];,:+-".contains(String.valueOf(current));
+        return "(){}[];,:+-%".contains(String.valueOf(current));
     }
 
     private Token getSingleCharacterToken(char current) {
@@ -123,9 +178,11 @@ public class Lexer {
             case ':':
                 return new Token(TypeOtro.DOS_PUNTOS, ":");
             case '+':
-                return new Token(TypeArtimetico.SUMA, "+");
+                return new Token(TypeAritmetico.SUMA, "+");
             case '-':
-                return new Token(TypeArtimetico.RESTA, "-");
+                return new Token(TypeAritmetico.RESTA, "-");
+            case '%':
+                return new Token(TypeAritmetico.MODULO, "%");
             case '!':
                 return new Token(TypeAsignacion.ASIGNACION, "!");
             case '>':
@@ -156,6 +213,7 @@ public class Lexer {
                 return new Token(TypeConstante.DECIMAL, value.toString());
             }
         } catch (IOException e) {
+            // Manejar la excepción adecuadamente
             e.printStackTrace();
         }
 
@@ -174,33 +232,33 @@ public class Lexer {
             String valuestring = value.toString();
             Map<String, TypePalabraReservada> palabraResMap = new HashMap<>();
             palabraResMap.put("as", TypePalabraReservada.AS);
-        palabraResMap.put("assert", TypePalabraReservada.ASSERT);
-        palabraResMap.put("break", TypePalabraReservada.BREAK);
-        palabraResMap.put("class", TypePalabraReservada.CLASS);
-        palabraResMap.put("continue", TypePalabraReservada.CONTINUE);
-        palabraResMap.put("def", TypePalabraReservada.DEF);
-        palabraResMap.put("del", TypePalabraReservada.DEL);
-        palabraResMap.put("for", TypePalabraReservada.FOR);
-        palabraResMap.put("elif", TypePalabraReservada.ELIF);
-        palabraResMap.put("else", TypePalabraReservada.ELSE);
-        palabraResMap.put("except", TypePalabraReservada.EXCEPT);
-        palabraResMap.put("finally", TypePalabraReservada.FINALLY);
-        palabraResMap.put("from", TypePalabraReservada.FROM);
-        palabraResMap.put("global", TypePalabraReservada.GLOBAL);
-        palabraResMap.put("import", TypePalabraReservada.IMPORT);
-        palabraResMap.put("in", TypePalabraReservada.IN);
-        palabraResMap.put("is", TypePalabraReservada.IS);
-        palabraResMap.put("if", TypePalabraReservada.IF);
-        palabraResMap.put("lambda", TypePalabraReservada.LAMBDA);
-        palabraResMap.put("None", TypePalabraReservada.NONE);
-        palabraResMap.put("nonlocal", TypePalabraReservada.NONLOCAL);
-        palabraResMap.put("pass", TypePalabraReservada.PASS);
-        palabraResMap.put("raise", TypePalabraReservada.RAISE);
-        palabraResMap.put("return", TypePalabraReservada.RETURN);
-        palabraResMap.put("try", TypePalabraReservada.TRY);
-        palabraResMap.put("while", TypePalabraReservada.WHILE);
-        palabraResMap.put("with", TypePalabraReservada.WITH);
-        palabraResMap.put("yield", TypePalabraReservada.YIELD);
+            palabraResMap.put("assert", TypePalabraReservada.ASSERT);
+            palabraResMap.put("break", TypePalabraReservada.BREAK);
+            palabraResMap.put("class", TypePalabraReservada.CLASS);
+            palabraResMap.put("continue", TypePalabraReservada.CONTINUE);
+            palabraResMap.put("def", TypePalabraReservada.DEF);
+            palabraResMap.put("del", TypePalabraReservada.DEL);
+            palabraResMap.put("for", TypePalabraReservada.FOR);
+            palabraResMap.put("elif", TypePalabraReservada.ELIF);
+            palabraResMap.put("else", TypePalabraReservada.ELSE);
+            palabraResMap.put("except", TypePalabraReservada.EXCEPT);
+            palabraResMap.put("finally", TypePalabraReservada.FINALLY);
+            palabraResMap.put("from", TypePalabraReservada.FROM);
+            palabraResMap.put("global", TypePalabraReservada.GLOBAL);
+            palabraResMap.put("import", TypePalabraReservada.IMPORT);
+            palabraResMap.put("in", TypePalabraReservada.IN);
+            palabraResMap.put("is", TypePalabraReservada.IS);
+            palabraResMap.put("if", TypePalabraReservada.IF);
+            palabraResMap.put("lambda", TypePalabraReservada.LAMBDA);
+            palabraResMap.put("None", TypePalabraReservada.NONE);
+            palabraResMap.put("nonlocal", TypePalabraReservada.NONLOCAL);
+            palabraResMap.put("pass", TypePalabraReservada.PASS);
+            palabraResMap.put("raise", TypePalabraReservada.RAISE);
+            palabraResMap.put("return", TypePalabraReservada.RETURN);
+            palabraResMap.put("try", TypePalabraReservada.TRY);
+            palabraResMap.put("while", TypePalabraReservada.WHILE);
+            palabraResMap.put("with", TypePalabraReservada.WITH);
+            palabraResMap.put("yield", TypePalabraReservada.YIELD);
 
             if (palabraResMap.containsKey(valuestring)) {
                 TypePalabraReservada tipoPalabraRes = palabraResMap.get(valuestring);
@@ -218,11 +276,14 @@ public class Lexer {
             if (value.toString().equals("or")) {
                 return new Token(TypeLogico.O, valuestring);
             }
-
-            if (value.toString().equals("True") || value.toString().equals("False")) {
+            if (value.toString().equals("True")) {
+                return new Token(TypeConstante.BOOLEANAS, valuestring);
+            }
+            if (value.toString().equals("False")) {
                 return new Token(TypeConstante.BOOLEANAS, valuestring);
             }
         } catch (IOException e) {
+            // Manejar la excepción adecuadamente
             e.printStackTrace();
         }
 
@@ -233,15 +294,16 @@ public class Lexer {
         StringBuilder value = new StringBuilder();
 
         try {
-            while (Character.isLetterOrDigit(currentChar()) || (Character.isWhitespace(currentChar()) && currentChar() != '\n')) {
+            while (Character.isLetter(currentChar()) || Character.isAlphabetic(currentChar()) || Character.isDigit(currentChar()) || (Character.isWhitespace(currentChar()) && currentChar() != '\n')) {
                 value.append(currentChar());
                 advance();
             }
 
-            if (currentChar() == '\n') {
+            if (Character.isWhitespace(currentChar()) && currentChar() == '\n') {
                 return new Token(TypeComentario.COMENTARIO, "#" + value.toString());
             }
         } catch (IOException e) {
+            // Manejar la excepción adecuadamente
             e.printStackTrace();
         }
 
@@ -253,19 +315,21 @@ public class Lexer {
         value.append(current);
 
         try {
-            while (currentChar() != '\0' && currentChar() != current) {
+            while (currentChar() != '\0' && currentChar() != '\'') {
                 value.append(currentChar());
                 advance();
             }
 
-            if (currentChar() == current) {
+            if (currentChar() == '\'') {
                 value.append(currentChar());
                 advance();
                 return new Token(TypeConstante.CADENA, value.toString());
             } else {
+                // Lanzar una excepción si no se cierra la cadena
                 throw new RuntimeException("Cadena no cerrada correctamente");
             }
         } catch (Exception e) {
+            // Manejar la excepción aquí, por ejemplo, imprimir un mensaje de error
             System.err.println("Error al leer cadena: " + e.getMessage());
             return new Token(TypeOtro.ERROR_LEXICO, value.toString());
         }
@@ -276,19 +340,21 @@ public class Lexer {
         value.append(current);
 
         try {
-            while (currentChar() != '\0' && currentChar() != current) {
-                value.append(currentChar());
+            while (currentChar() != '\0' && currentChar() != '"') {
+                StringBuilder append = value.append(currentChar());
                 advance();
             }
 
-            if (currentChar() == current) {
+            if (currentChar() == '"') {
                 value.append(currentChar());
                 advance();
                 return new Token(TypeConstante.CADENA, value.toString());
             } else {
+                // Lanzar una excepción si no se cierra la cadena
                 throw new RuntimeException("Cadena no cerrada correctamente");
             }
         } catch (Exception e) {
+            // Manejar la excepción aquí, por ejemplo, imprimir un mensaje de error
             System.err.println("Error al leer cadena con comillas dobles: " + e.getMessage());
             return new Token(TypeOtro.ERROR_LEXICO, value.toString());
         }
@@ -302,47 +368,4 @@ public class Lexer {
         return columna;
     }
 
-    private Token handleSpecialTokens(char current) throws IOException {
-        advance();
-        char nextChar = currentChar();
-
-        if (current == '=') {
-            if (nextChar == '=') {
-                advance();
-                return new Token(TypeComparacion.IGUAL_QUE, "==");
-            } else {
-                return new Token(TypeAsignacion.ASIGNACION, "=");
-            }
-        } else if (current == '!') {
-            if (nextChar == '=') {
-                advance();
-                return new Token(TypeComparacion.DIFERENTE_DE, "!=");
-            } else {
-                return new Token(TypeAsignacion.ASIGNACION, "!");
-            }
-        } else if (current == '>') {
-            if (nextChar == '=') {
-                advance();
-                return new Token(TypeComparacion.MAYOR_O_IGUAL_QUE, ">=");
-            } else {
-                return new Token(TypeComparacion.MAYOR_QUE, ">");
-            }
-        } else if (current == '<') {
-            if (nextChar == '=') {
-                advance();
-                return new Token(TypeComparacion.MENOR_O_IGUAL_QUE, "<=");
-            } else {
-                return new Token(TypeComparacion.MENOR_QUE, "<");
-            }
-        } else if (current == '/') {
-            if (nextChar == '/') {
-                advance();
-                return new Token(TypeArtimetico.DIVISION, "//");
-            } else {
-                return new Token(TypeArtimetico.DIVISION, "/");
-            }
-        }
-
-        return new Token(TypeOtro.ERROR_LEXICO, "Caracter Desconocido");
-    }
 }

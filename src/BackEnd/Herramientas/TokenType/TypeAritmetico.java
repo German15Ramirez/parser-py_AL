@@ -8,7 +8,7 @@ package BackEnd.Herramientas.TokenType;
  *
  * @author ryoumen_kyoma
  */
-public enum TypeArtimetico {
+public enum TypeAritmetico {
     SUMA,
     RESTA,
     EXPONENTE,

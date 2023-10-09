@@ -156,7 +156,6 @@ public class EntornoVisual extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-
         OpenFile.openFileAndSetText(jTextPane1);
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -165,11 +164,17 @@ public class EntornoVisual extends javax.swing.JFrame {
         AnalisisLexico analyzer = new AnalisisLexico(jTextPane1.getText());
         analyzer.analyze();
         Map<Object, Object> mapTokens = analyzer.getMapTokens();
-        List<List<Object>> infoTabla = analyzer.getInfoTabla();
+        infoTabla = analyzer.getInfoTabla();
+        tablaToken = analyzer.getTablaToken();
+        // Borra el contenido actual de newListOfLists
+        newListOfLists.clear();
+
+        for (List<Object> tabla : tablaToken) {
+            List<Object> newList = new ArrayList<>(tabla);
+            newListOfLists.add(newList);
+        }
         resaltarSintaxis();
         System.out.println("Tokens del Lexico : " + infoTabla);
-        // Llama al método actualizarTabla en la instancia de TokensIdentificados
-
         actualizarTablaEnTokensIdentificados();
     }//GEN-LAST:event_jButton5ActionPerformed
 
@@ -180,11 +185,11 @@ public class EntornoVisual extends javax.swing.JFrame {
     }
 
     public void actualizarTablaEnTokensIdentificados() {
-        // Llena la lista tablaToken con los datos que deseas mostrar
-        // ...
-
-        // Luego, llama al método actualizarTabla de TokensIdentificados
-        tokensIdentificados.actualizarTabla(infoTabla);
+        if (tokensIdentificados != null) {
+            tokensIdentificados.actualizarTabla(infoTabla);
+        } else {
+            System.err.println("TokensIdentificados no está inicializado.");
+        }
     }
 
 
