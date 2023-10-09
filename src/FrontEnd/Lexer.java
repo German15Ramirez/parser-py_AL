@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import BackEnd.Herramientas.*;
+import BackEnd.Herramientas.TokenType.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 
 /**
  *
@@ -15,320 +19,330 @@ import BackEnd.Herramientas.*;
  */
 public class Lexer {
 
-    private String inputString;
-    private int posicionActual;
-    private int currentLine;
-    private int currentColumn;
-    private Map<String, ListTokens> Tokens;
-    private ArrayList<Token> listado;
+     private final Reader reader;
+    private int columna;
+    private int fila;
+    private int currentChar;
+    private final ArrayList<Object> palabrasG;
 
-    public ArrayList<Token> getListado() {
-        return this.listado;
-    }
-
-    public Lexer(ArrayList<Token> listado) {
-        this.listado = listado;
-        iniciarAlmacen();
-    }
-
-    public void analize(String inputString) {
-        String buffer = "";
-        char[] inputChar = inputString.toCharArray();
-        this.posicionActual = posicionActual >= 0 ? posicionActual : 0;
-        this.currentLine = 1;
-        this.currentColumn = 1;
-        boolean typeCadena = false;
-        boolean typeComentario = false;
-        for (char letter : inputChar) {
-            if (typeCadena) {
-                buffer = buffer + letter;
-                if (letter == '"' || letter == '\'') {
-                    typeCadena = false;
-                    createToken(buffer, currentLine, currentColumn);
-                    buffer = "";
-                }
-
-            } else if (typeComentario) {
-                buffer = buffer + letter;
-                if (letter == '\n') {
-                    typeComentario = false;
-                    createToken(buffer, currentLine, currentColumn);
-                    buffer = "";
-                }
-
-            } else {
-                switch (letter) {
-                    case '\t':
-                    case ' ':
-                        if (!buffer.isEmpty()) {
-                            createToken(buffer, currentLine, currentColumn);
-                            buffer = "";
-
-                        }
-                        currentColumn++;
-
-                        break;
-                        case '\n':
-                currentLine++;
-                currentColumn = 1; // Reiniciar la columna a 1 en cada nueva línea
-                if (!buffer.isEmpty()) {
-                    createToken(buffer, currentLine, currentColumn);
-                    buffer = "";
-                }
-                break;
-                    case '#':
-                        if (!buffer.isEmpty()) {
-                            createToken(buffer, currentLine, currentColumn);
-                            buffer = "";
-                        }
-                        buffer = buffer + letter;
-                        typeComentario = true;
-                        currentColumn++;
-                        break;
-                    case '"':
-                    case '\'':
-                        if (!buffer.isEmpty()) {
-                            createToken(buffer, currentLine, currentColumn);
-                            buffer = "";
-                        }
-                        if (typeCadena) {
-                            buffer = buffer + letter;
-                            typeCadena = false;
-                            createToken(buffer, currentLine, currentColumn);
-                            buffer = "";
-                        } else {
-                            buffer = buffer + letter;
-                            typeCadena = true;
-                        }
-                        currentColumn++;
-                        break;
-                    default:
-                        switch (letter) {
-                            case '%':
-                            case '*':
-                            case '+':
-                            case '-':
-                            case '/':
-                                if (!buffer.isEmpty()) {
-                                    createToken(buffer, currentLine, currentColumn);
-                                    buffer = "";
-                                }
-                                createToken(String.valueOf(letter), currentLine, currentColumn);
-                                currentColumn++;
-                                break;
-                            case '=':
-
-                                this.listado.add(new Token(ListTokens.ASIGNACION.toString(), "=", "=", currentLine, currentColumn));
-                                break;
-                            case '!':
-                            case '<':
-                            case '>':
-                                if (!buffer.isEmpty()) {
-                                    createToken(buffer, currentLine, currentColumn);
-                                    buffer = "";
-                                }
-                                buffer = buffer + letter;
-                                createToken(buffer, currentLine, currentColumn);
-                                buffer = "";
-                                currentColumn++;
-                                break;
-                            case '|':
-                                if (!buffer.isEmpty()) {
-                                    createToken(buffer, currentLine, currentColumn);
-                                    buffer = "";
-                                }
-                                if (currentColumn < inputChar.length - 1 && inputChar[currentColumn] == '|') {
-                                    buffer = "||";
-                                    createToken(buffer, currentLine, currentColumn);
-                                    buffer = "";
-                                    currentColumn++;
-                                }
-                                break;
-                            case '(':
-                            case ')':
-                            case ',':
-                            case ':':
-                            case ';':
-                            case '[':
-                            case ']':
-                            case '{':
-                            case '}':
-                                if (!buffer.isEmpty()) {
-                                    createToken(buffer, currentLine, currentColumn);
-                                    buffer = "";
-                                }
-                                buffer = buffer + letter;
-                                createToken(buffer, currentLine, currentColumn);
-                                buffer = "";
-                                currentColumn++;
-                                break;
-                        }
-                        if (typeIdentificador(buffer)) {
-                            if (this.Tokens.containsKey(buffer)) {
-                                createToken(buffer, currentLine, currentColumn);
-                                buffer = "";
-                            } else {
-                                buffer = buffer + letter;
-                            }
-                            currentColumn++;
-                            break;
-                        }
-                        buffer = buffer + letter;
-                        currentColumn++;
-                        break;
-                }
-            }
-        }
-        if (typeCadena) {
-            createToken("error " + buffer, currentLine, currentColumn);
-            buffer = "";
-        }
-
-    }
-
-    private void createToken(String lexema, int currentLine, int currentColumn) {
-        if (typeNumero(lexema)) {
-            if (lexema.contains(".")) {
-                this.listado.add(new Token(ListTokens.CONST_DECIMAL.toString(), "[0-9]+\\.[0-9]+", lexema, currentLine, currentColumn));
-            } else {
-                this.listado.add(new Token(ListTokens.CONST_ENTERO.toString(), "[0-9]+", lexema, currentLine, currentColumn));
-            }
-        } else if (typeCadena(lexema)) {
-            this.listado.add(new Token(ListTokens.CONST_CADENA.toString(), "((\"[a-z]*[0-9]*\") | (\"[A-Z]*[0-9])\") | (('[a-z]*[0-9]*') | ('[A-Z]*[0-9])')", lexema, currentLine, currentColumn));
-
-        } else if (this.Tokens.containsKey(lexema)) {
-            ListTokens typeTokens = this.Tokens.get(lexema);
-            if (typeTokens == ListTokens.OTROS_IDENTIFICADOR) {
-                this.listado.add(new Token(ListTokens.PALABRA_RESERVADA.toString(), "", lexema, currentLine, currentColumn));
-            } else {
-                this.listado.add(new Token(typeTokens.toString(), "", lexema, currentLine, currentColumn));
-
-            }
-
-        } else if (lexema.contains("#")) {
-            this.listado.add(new Token(ListTokens.COMENTARIO.toString(), "(#[0-9]*[a-z]* | #[0-9]*[A-Z]* #[a-z]*[0-9]* | #[A-Z]*[0-9]*)", lexema, currentLine, currentColumn));
-        } else if (lexema.contains("Error")) {
-            String[] text = lexema.split("error");
-            this.listado.add(new Token(ListTokens.ERROR_LEXICO.toString(), "no existe", lexema, currentLine, currentColumn));
-        } else if (lexema.contains("_")) {
-            char[] text = lexema.toCharArray();
-            String inicial = String.valueOf(text[0]);
-            boolean startNumber = false;
-            startNumber = typeNumero(inicial);
-            if (startNumber) {
-                this.listado.add(new Token(ListTokens.ERROR_LEXICO.toString(), "no existe", lexema, currentLine, currentColumn));
-            } else {
-                this.listado.add(new Token(ListTokens.OTROS_IDENTIFICADOR.toString(), "([w]|_)+(w|d)*", lexema, currentLine, currentColumn));
-            }
-        } else if (isComparativeOperator(lexema)) {
-        // Agregar los tokens de comparación
-        this.listado.add(new Token(getComparativeOperatorCategory(lexema).toString(), lexema, lexema, currentLine, currentColumn));
-    } else {
-        // Agregar otros tokens
-        this.listado.add(new Token(ListTokens.ERROR_LEXICO.toString(), lexema, lexema, currentLine, currentColumn));
-    }
-        }
-
-    
-private boolean isComparativeOperator(String lexema) {
-    return lexema.equals("==") || lexema.equals("!=") || lexema.equals(">") ||
-           lexema.equals("<") || lexema.equals(">=") || lexema.equals("<=");
-}
-private ListTokens getComparativeOperatorCategory(String lexema) {
-    switch (lexema) {
-        case "==":
-            return ListTokens.COMPARA_IGUAL;
-        case "!=":
-            return ListTokens.COMPARA_DIFERENTE;
-        case ">":
-            return ListTokens.COMPARA_MAYOR_QUE;
-        case "<":
-            return ListTokens.COMPARA_MENOR_QUE;
-        case ">=":
-            return ListTokens.COMPARA_MAYOR_O_IGUAL_QUE;
-        case "<=":
-            return ListTokens.COMPARA_MENOR_O_IGUAL_QUE;
-        default:
-            return ListTokens.ERROR_LEXICO; // En caso de algún error
-    }
-}
-    private boolean typeNumero(String lexema) {
-    try {
-        Integer.parseInt(lexema);
-        return true;
-    } catch (NumberFormatException e1) {
+    public Lexer(Reader reader) {
+        this.palabrasG = new ArrayList<>();
+        this.reader = new BufferedReader(reader);
+        this.currentChar = -1;
+        this.columna = 0;
+        this.fila = 1;
         try {
-            Double.parseDouble(lexema);
-            return true;
-        } catch (NumberFormatException e2) {
-            return false;
+            advance();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }}
-
-    private boolean typeCadena(String lexema) {
-        return ((lexema.startsWith("\"") && lexema.endsWith("\"")) || (lexema.startsWith("'") && lexema.endsWith("'")));
     }
 
-    private boolean typeIdentificador(String lexema) {
-        return !this.Tokens.containsKey(lexema);
+    private void advance() throws IOException {
+        int nextChar = reader.read();
+        if (nextChar != -1) {
+            currentChar = nextChar;
+            columna++;
+        } else {
+            currentChar = -1;
+        }
     }
 
-    private void iniciarAlmacen() {
-        this.Tokens = new HashMap<>();
-        this.Tokens.put("+", ListTokens.ARIT_SUMA);
-        this.Tokens.put("-", ListTokens.ARIT_RESTA);
-        this.Tokens.put("**", ListTokens.ARIT_EXPONENTE);
-        this.Tokens.put("/", ListTokens.ARIT_DIVISION);
-        this.Tokens.put("//", ListTokens.ARIT_DIVISION);
-        this.Tokens.put("%", ListTokens.ARIT_MODULO);
-        this.Tokens.put("*", ListTokens.ARIT_MULTIPLICACION);
-        this.Tokens.put("==", ListTokens.COMPARA_IGUAL);
-        this.Tokens.put("!=", ListTokens.COMPARA_DIFERENTE);
-        this.Tokens.put(">", ListTokens.COMPARA_MAYOR_QUE);
-        this.Tokens.put("<", ListTokens.COMPARA_MENOR_QUE);
-        this.Tokens.put(">=", ListTokens.COMPARA_MAYOR_O_IGUAL_QUE);
-        this.Tokens.put("<=", ListTokens.COMPARA_MENOR_O_IGUAL_QUE);
-        this.Tokens.put("and", ListTokens.LOGIC_Y);
-        this.Tokens.put("or", ListTokens.LOGIC_O);
-        this.Tokens.put("not", ListTokens.LOGIC_NEGACION);
-        this.Tokens.put("=", ListTokens.ASIGNACION);
-        this.Tokens.put("as", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("assert", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("break", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("class", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("continue", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("def", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("del", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("elif", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("else", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("except", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("finally", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("from", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("for", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("global", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("if", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("import", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("in", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("is", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("lambda", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("None", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("nonlocal", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("pass", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("raise", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("return", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("try", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("while", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("with", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("yeald", ListTokens.PALABRA_RESERVADA);
-        this.Tokens.put("(", ListTokens.OTROS_PARENTESIS);
-        this.Tokens.put(")", ListTokens.OTROS_PARENTESIS);
-        this.Tokens.put("{", ListTokens.OTROS_LLAVES);
-        this.Tokens.put("}", ListTokens.OTROS_LLAVES);
-        this.Tokens.put("[", ListTokens.OTROS_CORCHETES);
-        this.Tokens.put("]", ListTokens.OTROS_CORCHETES);
-        this.Tokens.put(",", ListTokens.OTROS_COMA);
-        this.Tokens.put(";", ListTokens.OTROS_PUNTO_Y_COMA);
-        this.Tokens.put(":", ListTokens.OTROS_DOS_PUNTOS);
+    private char currentChar() {
+        return (char) currentChar;
+    }
 
+    public Token nextToken() {
+        try {
+            while (currentChar != -1) {
+                char current = currentChar();
+                if (Character.isWhitespace(current)) {
+                    advance();
+                    if (current == ' ') {
+                        return new Token(TypeSpace.SPACE, " ");
+                    } else if (current == '\n') {
+                        fila++;
+                        columna = 0;
+                        return new Token(TypeSpace.SALTO, "SALTO");
+                    }
+                } else if (Character.isLetter(current)) {
+                    return readLetter();
+                } else if (Character.isDigit(current)) {
+                    return readInteger();
+                } else if (current == '"') {
+                    advance();
+                    return cadenaComDob('"');
+                } else if (current == '\'') {
+                    advance();
+                    return cadena('\'');
+                } else if (isSingleCharacterToken(current)) {
+                    advance();
+                    return getSingleCharacterToken(current);
+                } else if (current == '#') {
+                    advance();
+                    return comentario();
+                } else if (current == '=' || current == '!' || current == '>' || current == '<' || current == '/') {
+                    advance();
+                    return handleSpecialTokens(current);
+                } else {
+                    advance();
+                    return new Token(TypeOtro.ERROR_LEXICO, "Caracter Desconocido");
+                }
+            }
+            advance();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fila++;
+        columna = 0;
+        return new Token(TypeSpace.FINAL_ARCHIVE, "");
+    }
+
+    private boolean isSingleCharacterToken(char current) {
+        return "(){}[];,:+-".contains(String.valueOf(current));
+    }
+
+    private Token getSingleCharacterToken(char current) {
+        switch (current) {
+            case '(':
+                return new Token(TypeOtro.PARENTESIS, "(");
+            case ')':
+                return new Token(TypeOtro.PARENTESIS, ")");
+            case '{':
+                return new Token(TypeOtro.LLAVES, "{");
+            case '}':
+                return new Token(TypeOtro.LLAVES, "}");
+            case '[':
+                return new Token(TypeOtro.CORCHETES, "[");
+            case ']':
+                return new Token(TypeOtro.CORCHETES, "]");
+            case ';':
+                return new Token(TypeOtro.PUNTO_Y_COMA, ";");
+            case ',':
+                return new Token(TypeOtro.COMA, ",");
+            case ':':
+                return new Token(TypeOtro.DOS_PUNTOS, ":");
+            case '+':
+                return new Token(TypeArtimetico.SUMA, "+");
+            case '-':
+                return new Token(TypeArtimetico.RESTA, "-");
+            case '!':
+                return new Token(TypeAsignacion.ASIGNACION, "!");
+            case '>':
+                return new Token(TypeComparacion.MAYOR_QUE, ">");
+            case '<':
+                return new Token(TypeComparacion.MENOR_QUE, "<");
+            default:
+                return new Token(TypeOtro.ERROR_LEXICO, "Caracter Desconocido");
+        }
+    }
+
+    private Token readInteger() {
+        StringBuilder value = new StringBuilder();
+
+        try {
+            while (Character.isDigit(currentChar())) {
+                value.append(currentChar());
+                advance();
+            }
+
+            if (currentChar() == '.') {
+                value.append(currentChar());
+                advance();
+                while (Character.isDigit(currentChar())) {
+                    value.append(currentChar());
+                    advance();
+                }
+                return new Token(TypeConstante.DECIMAL, value.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Token(TypeConstante.ENTERO, value.toString());
+    }
+
+    private Token readLetter() {
+        StringBuilder value = new StringBuilder();
+
+        try {
+            while (Character.isLetter(currentChar()) || currentChar() == '_' || Character.isDigit(currentChar())) {
+                value.append(currentChar());
+                advance();
+            }
+
+            String valuestring = value.toString();
+            Map<String, TypePalabraReservada> palabraResMap = new HashMap<>();
+            palabraResMap.put("as", TypePalabraReservada.AS);
+        palabraResMap.put("assert", TypePalabraReservada.ASSERT);
+        palabraResMap.put("break", TypePalabraReservada.BREAK);
+        palabraResMap.put("class", TypePalabraReservada.CLASS);
+        palabraResMap.put("continue", TypePalabraReservada.CONTINUE);
+        palabraResMap.put("def", TypePalabraReservada.DEF);
+        palabraResMap.put("del", TypePalabraReservada.DEL);
+        palabraResMap.put("for", TypePalabraReservada.FOR);
+        palabraResMap.put("elif", TypePalabraReservada.ELIF);
+        palabraResMap.put("else", TypePalabraReservada.ELSE);
+        palabraResMap.put("except", TypePalabraReservada.EXCEPT);
+        palabraResMap.put("finally", TypePalabraReservada.FINALLY);
+        palabraResMap.put("from", TypePalabraReservada.FROM);
+        palabraResMap.put("global", TypePalabraReservada.GLOBAL);
+        palabraResMap.put("import", TypePalabraReservada.IMPORT);
+        palabraResMap.put("in", TypePalabraReservada.IN);
+        palabraResMap.put("is", TypePalabraReservada.IS);
+        palabraResMap.put("if", TypePalabraReservada.IF);
+        palabraResMap.put("lambda", TypePalabraReservada.LAMBDA);
+        palabraResMap.put("None", TypePalabraReservada.NONE);
+        palabraResMap.put("nonlocal", TypePalabraReservada.NONLOCAL);
+        palabraResMap.put("pass", TypePalabraReservada.PASS);
+        palabraResMap.put("raise", TypePalabraReservada.RAISE);
+        palabraResMap.put("return", TypePalabraReservada.RETURN);
+        palabraResMap.put("try", TypePalabraReservada.TRY);
+        palabraResMap.put("while", TypePalabraReservada.WHILE);
+        palabraResMap.put("with", TypePalabraReservada.WITH);
+        palabraResMap.put("yield", TypePalabraReservada.YIELD);
+
+            if (palabraResMap.containsKey(valuestring)) {
+                TypePalabraReservada tipoPalabraRes = palabraResMap.get(valuestring);
+                return new Token(tipoPalabraRes, valuestring);
+            }
+
+            if (value.toString().equals("and")) {
+                return new Token(TypeLogico.Y, valuestring);
+            }
+
+            if (value.toString().equals("not")) {
+                return new Token(TypeLogico.NEGACION, valuestring);
+            }
+
+            if (value.toString().equals("or")) {
+                return new Token(TypeLogico.O, valuestring);
+            }
+
+            if (value.toString().equals("True") || value.toString().equals("False")) {
+                return new Token(TypeConstante.BOOLEANAS, valuestring);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Token(TypeIdentificador.IDENTIFICADOR, value.toString());
+    }
+
+    public Token comentario() {
+        StringBuilder value = new StringBuilder();
+
+        try {
+            while (Character.isLetterOrDigit(currentChar()) || (Character.isWhitespace(currentChar()) && currentChar() != '\n')) {
+                value.append(currentChar());
+                advance();
+            }
+
+            if (currentChar() == '\n') {
+                return new Token(TypeComentario.COMENTARIO, "#" + value.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Token(TypeOtro.ERROR_LEXICO, value.toString());
+    }
+
+    public Token cadena(char current) {
+        StringBuilder value = new StringBuilder();
+        value.append(current);
+
+        try {
+            while (currentChar() != '\0' && currentChar() != current) {
+                value.append(currentChar());
+                advance();
+            }
+
+            if (currentChar() == current) {
+                value.append(currentChar());
+                advance();
+                return new Token(TypeConstante.CADENA, value.toString());
+            } else {
+                throw new RuntimeException("Cadena no cerrada correctamente");
+            }
+        } catch (Exception e) {
+            System.err.println("Error al leer cadena: " + e.getMessage());
+            return new Token(TypeOtro.ERROR_LEXICO, value.toString());
+        }
+    }
+
+    public Token cadenaComDob(char current) {
+        StringBuilder value = new StringBuilder();
+        value.append(current);
+
+        try {
+            while (currentChar() != '\0' && currentChar() != current) {
+                value.append(currentChar());
+                advance();
+            }
+
+            if (currentChar() == current) {
+                value.append(currentChar());
+                advance();
+                return new Token(TypeConstante.CADENA, value.toString());
+            } else {
+                throw new RuntimeException("Cadena no cerrada correctamente");
+            }
+        } catch (Exception e) {
+            System.err.println("Error al leer cadena con comillas dobles: " + e.getMessage());
+            return new Token(TypeOtro.ERROR_LEXICO, value.toString());
+        }
+    }
+
+    public int fila() {
+        return fila;
+    }
+
+    public int columna() {
+        return columna;
+    }
+
+    private Token handleSpecialTokens(char current) throws IOException {
+        advance();
+        char nextChar = currentChar();
+
+        if (current == '=') {
+            if (nextChar == '=') {
+                advance();
+                return new Token(TypeComparacion.IGUAL_QUE, "==");
+            } else {
+                return new Token(TypeAsignacion.ASIGNACION, "=");
+            }
+        } else if (current == '!') {
+            if (nextChar == '=') {
+                advance();
+                return new Token(TypeComparacion.DIFERENTE_DE, "!=");
+            } else {
+                return new Token(TypeAsignacion.ASIGNACION, "!");
+            }
+        } else if (current == '>') {
+            if (nextChar == '=') {
+                advance();
+                return new Token(TypeComparacion.MAYOR_O_IGUAL_QUE, ">=");
+            } else {
+                return new Token(TypeComparacion.MAYOR_QUE, ">");
+            }
+        } else if (current == '<') {
+            if (nextChar == '=') {
+                advance();
+                return new Token(TypeComparacion.MENOR_O_IGUAL_QUE, "<=");
+            } else {
+                return new Token(TypeComparacion.MENOR_QUE, "<");
+            }
+        } else if (current == '/') {
+            if (nextChar == '/') {
+                advance();
+                return new Token(TypeArtimetico.DIVISION, "//");
+            } else {
+                return new Token(TypeArtimetico.DIVISION, "/");
+            }
+        }
+
+        return new Token(TypeOtro.ERROR_LEXICO, "Caracter Desconocido");
     }
 }

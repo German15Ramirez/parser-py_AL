@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="parser-py_AL">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Ejecutable/parser-py_AL.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

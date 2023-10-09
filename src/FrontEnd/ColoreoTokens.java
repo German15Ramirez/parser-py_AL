@@ -3,57 +3,62 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package FrontEnd;
-import BackEnd.Herramientas.Token;
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
+import BackEnd.Herramientas.TokenType.TypeArtimetico;
+import BackEnd.Herramientas.TokenType.TypeAsignacion;
+import BackEnd.Herramientas.TokenType.TypeComentario;
+import BackEnd.Herramientas.TokenType.TypeComparacion;
+import BackEnd.Herramientas.TokenType.TypeConstante;
+import BackEnd.Herramientas.TokenType.TypeIdentificador;
+import BackEnd.Herramientas.TokenType.TypeLogico;
+import BackEnd.Herramientas.TokenType.TypeOtro;
+import BackEnd.Herramientas.TokenType.TypePalabraReservada;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import java.awt.Color;
+import java.util.List;
+import javax.swing.SwingUtilities;
 
 /**
  *
  * @author ryoumen_kyoma
  */
 public class ColoreoTokens {
-    private JTextPane jTextPane;
 
-    public ColoreoTokens(JTextPane jtextPane) {
-        this.jTextPane = jtextPane;
-    }
+     public static void colorPalabras(StyledDocument doc, String text, List<List<Object>> newListOfLists) {
+        SwingUtilities.invokeLater(() -> {
+            doc.setCharacterAttributes(0, text.length(), doc.getStyle("default"), true);
 
-    public void ColorearTokens(List<Token> tokens) {
-        StyledDocument doc = jTextPane.getStyledDocument();
-        SimpleAttributeSet defaultStyle = new SimpleAttributeSet();
-        StyleConstants.setForeground(defaultStyle, Color.BLACK);
+            for (List<Object> tabla : newListOfLists) {
+                Color color = getColorForTokenType(tabla.get(0));
+                String tokenValue = tabla.get(1).toString();
 
-        for (Token token : tokens) {
-            int startPos = token.getCurrentColumn();
-            int endPos = token.getCurrentLine();
-            SimpleAttributeSet tokenType = new SimpleAttributeSet();
-            Color tokenColor = getColorForTokenType(token.getToken());
-            StyleConstants.setForeground(tokenType, tokenColor);
-
-            try {
-                doc.setCharacterAttributes(startPos, endPos - startPos, tokenType, false);
-            } catch (Exception e) {
-                e.printStackTrace();
+                int startIndex = 0;
+                while ((startIndex = text.indexOf(tokenValue, startIndex)) >= 0) {
+                    Style style = doc.addStyle("MyStyle", null);
+                    StyleConstants.setForeground(style, color);
+                    doc.setCharacterAttributes(startIndex, tokenValue.length(), style, false);
+                    startIndex += tokenValue.length();
+                }
             }
-        }
+        });
     }
-    private Color getColorForTokenType(String tokenType){
-        Color morado=new Color(117, 0, 134);
-        
-    switch (tokenType) {
-            case "ARIT_SUMA":
-                return Color.RED;
-            case "ARIT_RESTA":
-                return Color.BLUE;
-                
-            default:
-                return Color.BLACK;
+
+    public static Color getColorForTokenType(Object tokenType) {
+        if (tokenType instanceof TypeIdentificador) {
+            return Color.BLACK;
+        } else if (tokenType instanceof TypePalabraReservada) {
+            return new Color(128, 0, 128);
+        } else if (tokenType instanceof TypeArtimetico || tokenType instanceof TypeComparacion || tokenType instanceof TypeLogico || tokenType instanceof TypeAsignacion) {
+            return new Color(0, 191, 255);
+        } else if (tokenType instanceof TypeOtro) {
+            return Color.GREEN;
+        } else if (tokenType instanceof TypeConstante) {
+            return Color.RED;
+        } else if (tokenType instanceof TypeComentario) {
+            return Color.GRAY;
+        } else {
+            return Color.DARK_GRAY; // Valor por defecto para tipos desconocidos
         }
-    
-    
     }
 }

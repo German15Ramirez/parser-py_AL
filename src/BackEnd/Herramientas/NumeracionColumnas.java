@@ -3,14 +3,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package BackEnd.Herramientas;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 /**
  *
  * @author ryoumen_kyoma
  */
-public class NumeracionColumnas {
+public class NumeracionColumnas extends JPanel
+        implements CaretListener, DocumentListener, PropertyChangeListener{
     private JTextPane jTextPane;
     private JLabel jLabel;
     private int lineNumber;
@@ -44,7 +49,7 @@ public class NumeracionColumnas {
         int startOffset = jTextPane.getDocument().getDefaultRootElement().getElement(caretLine).getStartOffset();
         caretLine++;
         lineNumber = caretLine;
-        columnNumber = caretPosition - startOffset + 1;
+        columnNumber = caretPosition - startOffset;
 
         jLabel.setText("Columna: " + columnNumber);
         
@@ -58,4 +63,31 @@ public int getLineNumber() {
     public int getColumnNumber() {
         return columnNumber;
     }
+
+    @Override
+    public void caretUpdate(CaretEvent ce) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent de) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent de) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent de) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent pce) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
+
+
