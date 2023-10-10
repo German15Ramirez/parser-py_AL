@@ -4,8 +4,6 @@ import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -35,7 +33,7 @@ public class NumeracionFilas extends JPanel
 
     public NumeracionFilas(JTextComponent component, int minimumDisplayDigits) {
         this.component = component;
-        setFont(component.getFont());
+    setFont(component.getFont().deriveFont(15.0f));
         setBorderGap(5);
         setCurrentLineForeground(Color.BLUE); // Cambia aquí al color deseado
         setMinimumDisplayDigits(minimumDisplayDigits);

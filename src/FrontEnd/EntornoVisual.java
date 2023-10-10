@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
 import javax.swing.text.StyledDocument;
@@ -113,12 +115,12 @@ public class EntornoVisual extends javax.swing.JFrame {
                 jButton5ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 40, -1, -1));
+        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 40, -1, -1));
 
-        jTextPane1.setFont(new java.awt.Font("SansSerif", 0, 13)); // NOI18N
+        jTextPane1.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
         jScrollPane1.setViewportView(jTextPane1);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 820, 610));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 970, 800));
 
         jLabel3.setBackground(new java.awt.Color(0, 255, 255));
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
@@ -135,7 +137,7 @@ public class EntornoVisual extends javax.swing.JFrame {
         jPanel1.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 10, -1, 30));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/binary-code-background-digital-binary-data-with-streaming-digital-code-futuristic-cyberspace_1.jpg"))); // NOI18N
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 870, 710));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 990, 890));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -162,7 +164,11 @@ public class EntornoVisual extends javax.swing.JFrame {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         AnalisisLexico analyzer = new AnalisisLexico(jTextPane1.getText());
-        analyzer.analyze();
+        try {
+            analyzer.analyze();
+        } catch (IOException ex) {
+            Logger.getLogger(EntornoVisual.class.getName()).log(Level.SEVERE, null, ex);
+        }
         Map<Object, Object> mapTokens = analyzer.getMapTokens();
         infoTabla = analyzer.getInfoTabla();
         tablaToken = analyzer.getTablaToken();

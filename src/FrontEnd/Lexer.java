@@ -19,6 +19,7 @@ import java.io.Reader;
  */
 public class Lexer {
 
+    private boolean ignoreErrors = false;
     private final Reader reader;
     public static int columna;
     public static int fila;
@@ -53,7 +54,7 @@ public class Lexer {
         return (char) currentChar;
     }
 
-    public Token nextToken() {
+    public Token nextToken() throws IOException {
         try {
             while (currentChar != -1) {
                 char current = currentChar();
@@ -82,7 +83,7 @@ public class Lexer {
                 } else if (current == ' ') {
                     advance();
                     return new Token(TypeSpace.SPACE, " ");
-                } else if (Character.isWhitespace(current)) {
+                } else if (current == '\n') {
                     advance();
                     fila++;
                     columna = 0; // Reiniciar columna al inicio de una nueva línea
@@ -137,14 +138,22 @@ public class Lexer {
                     }
                 } else {
                     // Error: Carácter desconocido
+                    char unknownChar = currentChar();
                     advance();
-                    return new Token(TypeOtro.ERROR_LEXICO, "Caracter Desconocido");
+                    if (!ignoreErrors) {
+                        // Devolver un token de error léxico
+                        return new Token(TypeOtro.ERROR_LEXICO, "Caracter Desconocido: " + unknownChar);
+                    }
                 }
             }
             advance();
-        } catch (IOException e) {
-            // Manejar la excepción adecuadamente
-            e.printStackTrace();
+        } catch (LexicalError lexError) {
+            // Manejar el error léxico, por ejemplo, imprimir un mensaje de error
+            System.err.println("Error léxico: " + lexError.getMessage());
+            // Continuar analizando el código
+            if (!ignoreErrors) {
+                advance();
+            }
         }
         fila++;
         columna = 0;
@@ -291,72 +300,82 @@ public class Lexer {
     }
 
     public Token comentario() {
-        StringBuilder value = new StringBuilder();
+    StringBuilder value = new StringBuilder();
 
-        try {
-            while (Character.isLetter(currentChar()) || Character.isAlphabetic(currentChar()) || Character.isDigit(currentChar()) || (Character.isWhitespace(currentChar()) && currentChar() != '\n')) {
-                value.append(currentChar());
-                advance();
+    try {
+        while (currentChar() != -1 && currentChar() != '\n') {
+            if (currentChar() == '#') {
+                break;  // Cerrar el comentario si se encuentra otro "#"
             }
-
-            if (Character.isWhitespace(currentChar()) && currentChar() == '\n') {
-                return new Token(TypeComentario.COMENTARIO, "#" + value.toString());
-            }
-        } catch (IOException e) {
-            // Manejar la excepción adecuadamente
-            e.printStackTrace();
+            value.append(currentChar());
+            advance();
         }
 
-        return new Token(TypeOtro.ERROR_LEXICO, value.toString());
+        if (currentChar() == '#') {
+            value.append(currentChar());
+            advance();  // Avanzar después del último "#" encontrado
+        }
+
+        return new Token(TypeComentario.COMENTARIO, "#" + value.toString());
+    } catch (IOException e) {
+        // Manejar la excepción adecuadamente
+        e.printStackTrace();
     }
 
-    public Token cadena(char current) {
+    return new Token(TypeOtro.ERROR_LEXICO, value.toString());
+}
+
+    public Token cadena(char current) throws IOException, LexicalError {
         StringBuilder value = new StringBuilder();
         value.append(current);
 
-        try {
-            while (currentChar() != '\0' && currentChar() != '\'') {
-                value.append(currentChar());
-                advance();
-            }
+        int contadorCaracteres = 1; // Contador para rastrear la longitud de la cadena
 
-            if (currentChar() == '\'') {
-                value.append(currentChar());
-                advance();
+        while (currentChar() != -1 && currentChar() != '\'' && currentChar() != '\n' && contadorCaracteres <= 121) {
+            value.append(currentChar());
+            advance();
+            contadorCaracteres++;
+        }
+
+        if (currentChar() == '\'') {
+            value.append(currentChar());
+            advance();
+            if (contadorCaracteres <= 121) {
                 return new Token(TypeConstante.CADENA, value.toString());
             } else {
-                // Lanzar una excepción si no se cierra la cadena
-                throw new RuntimeException("Cadena no cerrada correctamente");
+                // Manejar el error léxico si la cadena supera el límite de caracteres
+                throw new LexicalError("Cadena excede el límite de 121 caracteres en fila " + fila + " columna " + columna);
             }
-        } catch (Exception e) {
-            // Manejar la excepción aquí, por ejemplo, imprimir un mensaje de error
-            System.err.println("Error al leer cadena: " + e.getMessage());
-            return new Token(TypeOtro.ERROR_LEXICO, value.toString());
+        } else {
+            // Manejar el error léxico y continuar con el análisis
+            throw new LexicalError("Cadena no cerrada correctamente en fila " + fila + " columna " + columna);
         }
     }
 
-    public Token cadenaComDob(char current) {
+    public class LexicalError extends Exception {
+
+        public LexicalError(String message) {
+            super(message);
+        }
+
+    }
+
+    public Token cadenaComDob(char current) throws LexicalError, IOException {
         StringBuilder value = new StringBuilder();
         value.append(current);
 
-        try {
-            while (currentChar() != '\0' && currentChar() != '"') {
-                StringBuilder append = value.append(currentChar());
-                advance();
-            }
+        while (currentChar() != '\0' && currentChar() != '"') {
+            value.append(currentChar());
+            advance();
+        }
 
-            if (currentChar() == '"') {
-                value.append(currentChar());
-                advance();
-                return new Token(TypeConstante.CADENA, value.toString());
-            } else {
-                // Lanzar una excepción si no se cierra la cadena
-                throw new RuntimeException("Cadena no cerrada correctamente");
-            }
-        } catch (Exception e) {
-            // Manejar la excepción aquí, por ejemplo, imprimir un mensaje de error
-            System.err.println("Error al leer cadena con comillas dobles: " + e.getMessage());
-            return new Token(TypeOtro.ERROR_LEXICO, value.toString());
+        if (currentChar() == '"') {
+            value.append(currentChar());
+            advance();
+            return new Token(TypeConstante.CADENA, value.toString());
+        } else {
+            // Manejar el error léxico y continuar con el análisis
+            throw new LexicalError("Cadena con comillas dobles no cerrada correctamente en fila " + fila + " columna " + columna);
         }
     }
 

@@ -5,6 +5,7 @@
 package FrontEnd;
 import BackEnd.Herramientas.*;
 import BackEnd.Herramientas.TokenType.*;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class AnalisisLexico {
         this.text = inputText;
     }
 
-    public void analyze() {
+    public void analyze() throws IOException {
         clearData();
 
         Reader reader = new StringReader(text);

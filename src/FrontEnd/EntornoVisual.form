@@ -108,7 +108,7 @@
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="710" y="40" width="-1" height="-1"/>
+              <AbsoluteConstraints x="850" y="40" width="-1" height="-1"/>
             </Constraint>
           </Constraints>
         </Component>
@@ -118,7 +118,7 @@
           </AuxValues>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="20" y="80" width="820" height="610"/>
+              <AbsoluteConstraints x="10" y="80" width="970" height="800"/>
             </Constraint>
           </Constraints>
 
@@ -127,7 +127,7 @@
             <Component class="javax.swing.JTextPane" name="jTextPane1">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="SansSerif" size="13" style="0"/>
+                  <Font name="SansSerif" size="15" style="0"/>
                 </Property>
               </Properties>
             </Component>
@@ -171,7 +171,7 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="0" y="0" width="870" height="710"/>
+              <AbsoluteConstraints x="0" y="0" width="990" height="890"/>
             </Constraint>
           </Constraints>
         </Component>

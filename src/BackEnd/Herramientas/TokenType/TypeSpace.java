@@ -4,8 +4,6 @@
  */
 package BackEnd.Herramientas.TokenType;
 
-import java.awt.SplashScreen;
-
 /**
  *
  * @author ryoumen_kyoma
