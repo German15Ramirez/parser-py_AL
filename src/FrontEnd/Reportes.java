@@ -51,6 +51,12 @@ public class Reportes extends javax.swing.JPanel {
                 jButton9ActionPerformed(evt);
             }
         });
+                jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        }
+        );
 
         jPanel1.setLayout(new GridLayout(11, 1));
         jPanel1.add(jLabel1);
@@ -78,6 +84,17 @@ public class Reportes extends javax.swing.JPanel {
         frame.setResizable(false);
         frame.setVisible(true);
     }
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+    // Mostrar la tabla de errores léxicos en la ventana de reportes
+    ErroresLexicos erroresFrame = EntornoVisual.getErroresLexicos();
+    JFrame frame = new JFrame("Errores Lexicos");
+    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    frame.add(erroresFrame);
+    frame.pack();
+    frame.setLocationRelativeTo(null);
+    frame.setResizable(true); // Ajusta esto según tus preferencias
+    frame.setVisible(true);
+}
 
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

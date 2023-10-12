@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package FrontEnd;
+
 import BackEnd.Herramientas.TokenType.*;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.Style;
@@ -20,8 +21,6 @@ public class ColoreoTokens {
     public static void colorPalabras(StyledDocument doc, String text, List<List<Object>> tablaToken) {
         SwingUtilities.invokeLater(() -> {
             doc.setCharacterAttributes(0, text.length(), doc.getStyle("default"), true);
-            System.out.println("tablaToken: " + tablaToken);
-
             int startIndex = 0;
             for (List<Object> fila : tablaToken) {
                 Object tokenType = fila.get(0);
@@ -47,15 +46,17 @@ public class ColoreoTokens {
 
     public static Color getColorForTokenType(Object tokenType) {
         if (tokenType instanceof TypeIdentificador) {
-            return Color.BLACK;
+            return new Color(221, 142, 18);//naranja oscuro
         } else if (tokenType instanceof TypePalabraReservada) {
-            return new Color(128, 0, 128);
+            return new Color(128, 0, 128);//morado
         } else if (tokenType instanceof TypeAritmetico || tokenType instanceof TypeComparacion || tokenType instanceof TypeLogico || tokenType instanceof TypeAsignacion) {
-            return new Color(0, 191, 255);
+            return new Color(0, 191, 255);//celeste
         } else if (tokenType instanceof TypeOtro) {
             return Color.GREEN;
         } else if (tokenType instanceof TypeConstante) {
-            return new Color(216, 112, 0);
+            return Color.RED;
+        } else if (tokenType instanceof TypeBooleanas) {
+            return new Color(27, 113, 107);
         } else if (tokenType instanceof TypeComentario) {
             return Color.GRAY;
         } else {

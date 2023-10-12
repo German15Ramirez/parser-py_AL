@@ -33,7 +33,7 @@ public class NumeracionFilas extends JPanel
 
     public NumeracionFilas(JTextComponent component, int minimumDisplayDigits) {
         this.component = component;
-    setFont(component.getFont().deriveFont(15.0f));
+    setFont(component.getFont().deriveFont(16.0f));
         setBorderGap(5);
         setCurrentLineForeground(Color.BLUE); // Cambia aquí al color deseado
         setMinimumDisplayDigits(minimumDisplayDigits);

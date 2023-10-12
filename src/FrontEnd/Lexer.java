@@ -19,12 +19,12 @@ import java.io.Reader;
  */
 public class Lexer {
 
-    private boolean ignoreErrors = false;
     private final Reader reader;
     public static int columna;
     public static int fila;
     private int currentChar;
     private final ArrayList<Object> palabrasG;
+    private boolean ignoreErrors = false;
 
     public Lexer(Reader reader) {
         this.palabrasG = new ArrayList<>();
@@ -61,11 +61,24 @@ public class Lexer {
                 if (current == '*') {
                     advance();
                     char nextChar = currentChar();
-                    if (nextChar == '*') {
+                    if (nextChar == '=') {
+                        advance();
+                        return new Token(TypeAsignacion.MULTIPLICACION_ASIGNACION, "*=");
+                    } else if (nextChar == '*') {
+                        advance();
                         advance();
                         return new Token(TypeAritmetico.EXPONENTE, "**");
                     } else {
                         return new Token(TypeAritmetico.MULTIPLICACION, "*");
+                    }
+                } else if (current == '-') {
+                    advance();
+                    char nextChar = currentChar();
+                    if (nextChar == '=') {
+                        advance();
+                        return new Token(TypeAsignacion.RESTA_ASIGNACION, "-=");
+                    } else {
+                        return new Token(TypeAritmetico.RESTA, "-");
                     }
                 } else if (Character.isLetter(current)) {
                     return readLetter();
@@ -142,7 +155,7 @@ public class Lexer {
                     advance();
                     if (!ignoreErrors) {
                         // Devolver un token de error léxico
-                        return new Token(TypeOtro.ERROR_LEXICO, "Caracter Desconocido: " + unknownChar);
+                        return new Token(TypeErrorLexico.ERROR_LEXICO, "" + unknownChar);
                     }
                 }
             }
@@ -158,8 +171,7 @@ public class Lexer {
         fila++;
         columna = 0;
 
-        return new Token(TypeSpace.FINAL_ARCHIVE,
-                "");
+        return new Token(TypeSpace.FINAL_ARCHIVE, "");
     }
 
     private boolean isSingleCharacterToken(char current) {
@@ -199,7 +211,7 @@ public class Lexer {
             case '<':
                 return new Token(TypeComparacion.MENOR_QUE, "<");
             default:
-                return new Token(TypeOtro.ERROR_LEXICO, "Caracter Desconocido");
+                return new Token(TypeErrorLexico.ERROR_LEXICO, "Caracter Desconocido");
         }
     }
 
@@ -286,10 +298,10 @@ public class Lexer {
                 return new Token(TypeLogico.O, valuestring);
             }
             if (value.toString().equals("True")) {
-                return new Token(TypeConstante.BOOLEANAS, valuestring);
+                return new Token(TypeBooleanas.TRUE, valuestring);
             }
             if (value.toString().equals("False")) {
-                return new Token(TypeConstante.BOOLEANAS, valuestring);
+                return new Token(TypeBooleanas.FALSE, valuestring);
             }
         } catch (IOException e) {
             // Manejar la excepción adecuadamente
@@ -300,71 +312,76 @@ public class Lexer {
     }
 
     public Token comentario() {
-    StringBuilder value = new StringBuilder();
+        StringBuilder value = new StringBuilder();
 
-    try {
-        while (currentChar() != -1 && currentChar() != '\n') {
-            if (currentChar() == '#') {
-                break;  // Cerrar el comentario si se encuentra otro "#"
+        try {
+            while (currentChar() != -1 && currentChar() != '\n') {
+                if (currentChar() == '#') {
+                    break;  // Cerrar el comentario si se encuentra otro "#"
+                }
+                value.append(currentChar());
+                advance();
             }
-            value.append(currentChar());
-            advance();
+
+            if (currentChar() == '#') {
+                value.append(currentChar());
+                advance();  // Avanzar después del último "#" encontrado
+            }
+
+            return new Token(TypeComentario.COMENTARIO, "#" + value.toString());
+        } catch (IOException e) {
+            // Manejar la excepción adecuadamente
+            e.printStackTrace();
         }
 
-        if (currentChar() == '#') {
-            value.append(currentChar());
-            advance();  // Avanzar después del último "#" encontrado
-        }
-
-        return new Token(TypeComentario.COMENTARIO, "#" + value.toString());
-    } catch (IOException e) {
-        // Manejar la excepción adecuadamente
-        e.printStackTrace();
+        return new Token(TypeErrorLexico.ERROR_LEXICO, value.toString());
     }
 
-    return new Token(TypeOtro.ERROR_LEXICO, value.toString());
-}
-
-    public Token cadena(char current) throws IOException, LexicalError {
+    public Token cadena(char current) throws LexicalError, IOException {
         StringBuilder value = new StringBuilder();
         value.append(current);
 
-        int contadorCaracteres = 1; // Contador para rastrear la longitud de la cadena
+        int espacioCount = 0; // Contador para rastrear espacios en blanco
 
-        while (currentChar() != -1 && currentChar() != '\'' && currentChar() != '\n' && contadorCaracteres <= 121) {
+        while (currentChar() != -1 && (currentChar() != '\'' || espacioCount >= 3) && currentChar() != '\n') {
+            if (currentChar() == ' ') {
+                espacioCount++;
+            } else {
+                espacioCount = 0; // Reiniciar el contador de espacios
+            }
+
             value.append(currentChar());
             advance();
-            contadorCaracteres++;
         }
 
         if (currentChar() == '\'') {
             value.append(currentChar());
             advance();
-            if (contadorCaracteres <= 121) {
+            if (espacioCount < 3) {
                 return new Token(TypeConstante.CADENA, value.toString());
             } else {
-                // Manejar el error léxico si la cadena supera el límite de caracteres
-                throw new LexicalError("Cadena excede el límite de 121 caracteres en fila " + fila + " columna " + columna);
+                // Manejar el error léxico si la cadena supera el límite de caracteres debido a espacios en blanco
+                throw new LexicalError("Cadena excede el límite de caracteres en fila " + fila + " columna " + columna);
             }
         } else {
-            // Manejar el error léxico y continuar con el análisis
+            // Manejar el error léxico si la cadena no se cierra correctamente
             throw new LexicalError("Cadena no cerrada correctamente en fila " + fila + " columna " + columna);
         }
-    }
-
-    public class LexicalError extends Exception {
-
-        public LexicalError(String message) {
-            super(message);
-        }
-
     }
 
     public Token cadenaComDob(char current) throws LexicalError, IOException {
         StringBuilder value = new StringBuilder();
         value.append(current);
 
-        while (currentChar() != '\0' && currentChar() != '"') {
+        int espacioCount = 0; // Contador para rastrear espacios en blanco
+
+        while (currentChar() != -1 && (currentChar() != '"' || espacioCount >= 3)) {
+            if (currentChar() == ' ') {
+                espacioCount++;
+            } else {
+                espacioCount = 0; // Reiniciar el contador de espacios
+            }
+
             value.append(currentChar());
             advance();
         }
@@ -372,10 +389,22 @@ public class Lexer {
         if (currentChar() == '"') {
             value.append(currentChar());
             advance();
-            return new Token(TypeConstante.CADENA, value.toString());
+            if (espacioCount < 3) {
+                return new Token(TypeConstante.CADENA, value.toString());
+            } else {
+                // Manejar el error léxico si la cadena con comillas dobles supera el límite de caracteres debido a espacios en blanco
+                throw new LexicalError("Cadena con comillas dobles excede el límite de caracteres en fila " + fila + " columna " + columna);
+            }
         } else {
-            // Manejar el error léxico y continuar con el análisis
+            // Manejar el error léxico si la cadena con comillas dobles no se cierra correctamente
             throw new LexicalError("Cadena con comillas dobles no cerrada correctamente en fila " + fila + " columna " + columna);
+        }
+    }
+
+    public class LexicalError extends Exception {
+
+        public LexicalError(String message) {
+            super(message);
         }
     }
 

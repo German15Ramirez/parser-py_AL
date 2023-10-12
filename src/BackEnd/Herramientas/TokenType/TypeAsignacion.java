@@ -9,5 +9,7 @@ package BackEnd.Herramientas.TokenType;
  * @author ryoumen_kyoma
  */
 public enum TypeAsignacion {
-    ASIGNACION;
+    ASIGNACION, 
+    RESTA_ASIGNACION, 
+    MULTIPLICACION_ASIGNACION;
 }

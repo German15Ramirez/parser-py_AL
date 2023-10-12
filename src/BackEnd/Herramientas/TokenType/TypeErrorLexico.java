@@ -8,8 +8,6 @@ package BackEnd.Herramientas.TokenType;
  *
  * @author ryoumen_kyoma
  */
-public enum TypeConstante {
-    ENTERO,
-    DECIMAL,
-    CADENA;
+public enum TypeErrorLexico {
+    ERROR_LEXICO;
 }

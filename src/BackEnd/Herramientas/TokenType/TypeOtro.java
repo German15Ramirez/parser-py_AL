@@ -14,6 +14,5 @@ public enum TypeOtro {
     CORCHETES,
     COMA,
     PUNTO_Y_COMA,
-    DOS_PUNTOS,
-    ERROR_LEXICO;
+    DOS_PUNTOS;
 }

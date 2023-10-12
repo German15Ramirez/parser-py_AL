@@ -6,6 +6,7 @@ package FrontEnd;
 
 import BackEnd.Herramientas.*;
 import BackEnd.Herramientas.NumeracionColumnas;
+import BackEnd.Herramientas.TokenType.TypeErrorLexico;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
@@ -13,7 +14,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -26,6 +26,7 @@ import javax.swing.text.StyledDocument;
  */
 public class EntornoVisual extends javax.swing.JFrame {
 
+    public static ErroresLexicos erroresLexicos;
     public static TokensIdentificados tokensIdentificados;
     private String text;
     private final NumeracionFilas numeroFilaC1;
@@ -46,10 +47,16 @@ public class EntornoVisual extends javax.swing.JFrame {
         mapTokens = new HashMap<>();
         tokensIdentificados = new TokensIdentificados();
         tokensIdentificados.setVisible(true);
+        erroresLexicos = new ErroresLexicos();
+        erroresLexicos.setVisible(true);
     }
 
     public static TokensIdentificados getTokensIdentificados() {
         return tokensIdentificados;
+    }
+
+    public static ErroresLexicos getErroresLexicos() {
+        return erroresLexicos;
     }
 
     /**
@@ -117,10 +124,10 @@ public class EntornoVisual extends javax.swing.JFrame {
         });
         jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 40, -1, -1));
 
-        jTextPane1.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        jTextPane1.setFont(new java.awt.Font("SansSerif", 0, 16)); // NOI18N
         jScrollPane1.setViewportView(jTextPane1);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 970, 800));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 980, 880));
 
         jLabel3.setBackground(new java.awt.Color(0, 255, 255));
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
@@ -137,7 +144,7 @@ public class EntornoVisual extends javax.swing.JFrame {
         jPanel1.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 10, -1, 30));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/binary-code-background-digital-binary-data-with-streaming-digital-code-futuristic-cyberspace_1.jpg"))); // NOI18N
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 990, 890));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 980));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -169,19 +176,37 @@ public class EntornoVisual extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(EntornoVisual.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Map<Object, Object> mapTokens = analyzer.getMapTokens();
-        infoTabla = analyzer.getInfoTabla();
-        tablaToken = analyzer.getTablaToken();
-        // Borra el contenido actual de newListOfLists
-        newListOfLists.clear();
 
+        tablaToken = analyzer.getTablaToken();
+        infoTabla = analyzer.getInfoTabla();
+        List<List<Object>> filteredTokenList = new ArrayList<>();
+        List<List<Object>> filteredErrorList = new ArrayList<>();
+        //coloreo de tokens
+        newListOfLists.clear();
         for (List<Object> tabla : tablaToken) {
             List<Object> newList = new ArrayList<>(tabla);
             newListOfLists.add(newList);
         }
+        // Filtrar los tokens excluyendo los de tipo TypeErrorLexico
+        for (List<Object> tokenInfo : infoTabla) {
+            if (!(tokenInfo.get(1) instanceof TypeErrorLexico)) {
+                filteredTokenList.add(tokenInfo);
+            }
+        }
+        // Filtrar los errores léxicos (tokens de tipo TypeErrorLexico)
+        for (List<Object> errorInfo : tablaToken) {
+            if (errorInfo.get(0) instanceof TypeErrorLexico) {
+                filteredErrorList.add(errorInfo);
+            }
+        }
         resaltarSintaxis();
-        System.out.println("Tokens del Lexico : " + infoTabla);
-        actualizarTablaEnTokensIdentificados();
+        System.out.println("Tokens del Lexico: " + filteredTokenList + "\n");
+        System.out.println("Tokens Errores Lexicos: " + filteredErrorList + "\n");
+        actualizarTablaEnTokensIdentificados(filteredTokenList);
+        actualizarTablaEnErroresLexicos(filteredErrorList);
+        Syntactic sintactico = new Syntactic(tablaToken);
+        // Llamar al método analizar para iniciar el análisis sintáctico
+        sintactico.analizar();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     public void resaltarSintaxis() {
@@ -190,11 +215,19 @@ public class EntornoVisual extends javax.swing.JFrame {
         ColoreoTokens.colorPalabras(doc, text, newListOfLists);
     }
 
-    public void actualizarTablaEnTokensIdentificados() {
+    public void actualizarTablaEnTokensIdentificados(List<List<Object>> tokenList) {
         if (tokensIdentificados != null) {
-            tokensIdentificados.actualizarTabla(infoTabla);
+            tokensIdentificados.actualizarTabla(tokenList);
         } else {
             System.err.println("TokensIdentificados no está inicializado.");
+        }
+    }
+
+    public void actualizarTablaEnErroresLexicos(List<List<Object>> errorList) {
+        if (erroresLexicos != null) {
+            erroresLexicos.actualizarTabla(errorList);
+        } else {
+            System.err.println("ErroresLexicos no está inicializado.");
         }
     }
 
@@ -277,6 +310,9 @@ public class EntornoVisual extends javax.swing.JFrame {
         TokensIdentificados tokensIdentificados = new TokensIdentificados();
 
         tokensIdentificados.setVisible(true);
+        ErroresLexicos erroresLexicos = new ErroresLexicos();
+
+        erroresLexicos.setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

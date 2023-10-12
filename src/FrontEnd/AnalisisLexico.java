@@ -22,6 +22,7 @@ public class AnalisisLexico {
      private Map<Object, Object> mapTokens = new HashMap<>();
     private List<List<Object>> infoTabla = new ArrayList<>();
     private List<List<Object>> tablaToken = new ArrayList<>();
+    private List<List<Object>> tablaErroresLexicos = new ArrayList<>();
     private String text;
 
     public AnalisisLexico(String inputText) {
@@ -49,6 +50,7 @@ public class AnalisisLexico {
         mapTokens.clear();
         infoTabla.clear();
         tablaToken.clear();
+        tablaErroresLexicos.clear();
     }
 
     private void processToken(Token token, Lexer lexico, int fila) {
@@ -82,6 +84,10 @@ public class AnalisisLexico {
                 tipo = "TypeIdentificador";
                 patron = "([\\\\w]|_)+(\\\\w|\\\\d)*";
             }
+            if(token.type instanceof TypeBooleanas){
+                tipo = "TypeBooleanas";
+                patron = "[True|False]";
+            }
             if(token.type instanceof TypeLogico){
                 tipo = "TypeLogico";
                 patron = "[" + token.value.toString() + "]";
@@ -94,11 +100,16 @@ public class AnalisisLexico {
                 tipo = "TypePalabraReservada";
                 patron = "[" + token.value.toString() + "]";
             }
+            if(token.type instanceof TypeErrorLexico){
+                tipo = "TypeErrorLexico";
+                patron = "Caracter Desconocido";
+            }
             
             
             String tokenText = tipo + ": " + valor + " fila : " + lexico.fila() + " columna : " + lexico.columna();
-            tablaToken.add(Arrays.asList(token.type,token.type.toString().toLowerCase(),token.value, lexico.fila(),lexico.columna()));
-            infoTabla.add(Arrays.asList(tipo + " = " + token.type,patron,token.value, lexico.fila(),lexico.columna()));
+            tablaToken.add(Arrays.asList(token.type,patron,token.value, lexico.fila(),lexico.columna()));
+            tablaErroresLexicos.add(Arrays.asList(token.type,patron,token.value, lexico.fila(),lexico.columna()));
+            infoTabla.add(Arrays.asList(tipo,token.type,patron,token.value, lexico.fila(),lexico.columna()));
 
             if (mapTokens.containsKey(token.type)) {
                 valor = mapTokens.get(token.type).toString() + "," + valor;
@@ -120,5 +131,8 @@ public class AnalisisLexico {
     }
     public List<List<Object>> getTablaToken() {
         return tablaToken;
+    }
+    public List<List<Object>> getTablaErroresLexicos() {
+        return tablaErroresLexicos;
     }
 }

@@ -3,17 +3,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package FrontEnd;
-
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
-
 /**
  *
  * @author ryoumen_kyoma
  */
-public class TokensIdentificados extends javax.swing.JPanel {
-
-    public TokensIdentificados() {
+public class ErroresLexicos extends javax.swing.JPanel {
+    public ErroresLexicos() {
         initComponents();
     }
 
@@ -24,7 +21,7 @@ public class TokensIdentificados extends javax.swing.JPanel {
 
         jTable1.setModel(new DefaultTableModel(
             new Object[][]{},
-            new String[]{"TIPO","TOKEN", "PATRON", "LEXEMA", "FILA", "COLUMNA"}
+            new String[]{"TOKENS", "PATRON", "LEXEMA", "FILA", "COLUMNA"}
         ));
         jScrollPane1.setViewportView(jTable1);
 
