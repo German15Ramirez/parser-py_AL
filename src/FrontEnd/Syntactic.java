@@ -12,6 +12,7 @@ import java.util.List;
  * @author ryoumen_kyoma
  */
 public class Syntactic {
+
     private List<List<Object>> tablaToken;
     private int indiceActual;
     private int nivelIndentacion;
@@ -24,7 +25,7 @@ public class Syntactic {
     }
 
     public void analizar() {
-         while (indiceActual < tablaToken.size()) {
+        while (indiceActual < tablaToken.size()) {
             List<Object> tokenInfo = tablaToken.get(indiceActual);
             String lexema = (String) tokenInfo.get(2);
             int indentacionActual = detectarIndentacion(lexema);
@@ -36,46 +37,38 @@ public class Syntactic {
                 nivelIndentacion = indentacionActual;
             }
 
-             procesarToken(tokenInfo, lexema);
+            procesarToken(tokenInfo, lexema);
 
             indiceActual++;
-            
         }
     }
+
     private void procesarToken(List<Object> tokenInfo, String lexema) {
         String tipoToken = tokenInfo.get(0).toString();
 
         if (tipoToken.equals("IDENTIFICADOR")) {
-            procesarDeclaracionVariable();
-        } else if (lexema.equals("for")) {
-            procesarCicloFor();
-        } else if (lexema.equals("while")) {
-            procesarCicloWhile();
-        } else if (lexema.equals("def")) {
-            procesarDefinicionFuncion();
+            buscarDeclaracionVariable();
+//        } else if (lexema.equals("for")) {
+//            procesarCicloFor();
+//        } else if (lexema.equals("while")) {
+//            procesarCicloWhile();
+//        } else if (lexema.equals("def")) {
+//            procesarDefinicionFuncion();
         } else if (tipoToken.equals("COMENTARIO")) {
             procesarComentario(tokenInfo);
         }
     }
 
     private void mostrarBloqueDeCodigo(int inicioBloque, int finBloque) {
-        System.out.println("Bloque de código:");
-        StringBuilder bloqueActual = new StringBuilder();
-        for (int i = inicioBloque; i <= finBloque; i++) {
-            if (i < tablaToken.size()) {
-                List<Object> tokenInfo = tablaToken.get(i);
-                bloqueActual.append("Línea ").append(tokenInfo.get(3)).append(": ").append(tokenInfo.get(2)).append("\n");
-            }
-        }
-        System.out.print(bloqueActual.toString());
-        bloqueDeCodigoIdentificado.append(bloqueActual.toString());
         System.out.println(); // Agregamos un salto de línea después de cada bloque
         indiceActual = finBloque + 1;
     }
- private void procesarComentario(List<Object> tokenInfo) {
+
+    private void procesarComentario(List<Object> tokenInfo) {
         String lexema = (String) tokenInfo.get(2);
         System.out.println("Comentario en línea " + tokenInfo.get(3) + ": " + lexema);
     }
+
     private int obtenerFinBloque() {
         int i = indiceActual;
         while (i < tablaToken.size() && !((String) tablaToken.get(i).get(2)).equals(";")) {
@@ -97,118 +90,60 @@ public class Syntactic {
     }
 
     //procedimientos segun el tipo de bloque
-    private void procesarOperadorTernario() {
-        List<Object> identificadorInfo = tablaToken.get(indiceActual);
-        List<Object> operadorTernarioInfo = tablaToken.get(indiceActual + 1);
-        List<Object> expresionInfo = tablaToken.get(indiceActual + 2);
-        List<Object> valorTrueInfo = tablaToken.get(indiceActual + 3);
-        List<Object> separadorInfo = tablaToken.get(indiceActual + 4);
-        List<Object> valorFalseInfo = tablaToken.get(indiceActual + 5);
+    private void buscarDeclaracionVariable() {
+    int inicioDeclaracion = indiceActual;
+    StringBuilder identificador = new StringBuilder();
+    StringBuilder valor = new StringBuilder();
+    boolean asignacionEncontrada = false;
 
-        String identificador = (String) identificadorInfo.get(2);
-        String operadorTernario = (String) operadorTernarioInfo.get(2);
-        String expresion = (String) expresionInfo.get(2);
-        String valorTrue = (String) valorTrueInfo.get(2);
-        String separador = (String) separadorInfo.get(2);
-        String valorFalse = (String) valorFalseInfo.get(2);
+    while (indiceActual < tablaToken.size()) {
+        String tokenActual = ((String) tablaToken.get(indiceActual).get(2)).trim();
 
-        System.out.println("Operador ternario:");
-        System.out.println("Identificador: " + identificador);
-        System.out.println("Operador ternario: " + operadorTernario);
-        System.out.println("Expresión: " + expresion);
-        System.out.println("Valor True: " + valorTrue);
-        System.out.println("Separador: " + separador);
-        System.out.println("Valor False: " + valorFalse);
+        if (tokenActual.equals("=") && !identificador.toString().isEmpty()) {
+            asignacionEncontrada = true;
+        } else if (tokenActual.equals("\n")) {
+            if (asignacionEncontrada) {
+                // Termina la declaración al encontrar un salto de línea
+                break;
+            }
+        }
 
-        indiceActual += 6;
-        mostrarBloqueDeCodigo(indiceActual, indiceActual);
+        if (!asignacionEncontrada) {
+            identificador.append(tokenActual);
+        } else {
+            valor.append(tokenActual);
+        }
+
+        indiceActual++;
     }
 
-    private void procesarDeclaracionVariable() {
-        List<Object> identificadorInfo = tablaToken.get(indiceActual);
-        List<Object> asignacionInfo = tablaToken.get(indiceActual + 1);
-        List<Object> valorInfo = tablaToken.get(indiceActual + 2);
+    if (asignacionEncontrada) {
+        procesarDeclaracionVariable(identificador.toString(), valor.toString());
+    } else {
+        // Si no se encontró el operador de asignación, regresar al inicio de la declaración
+        indiceActual = inicioDeclaracion;
+    }
+}
+    private void procesarDeclaracionVariable(String identificador, String valor) {
+        String tipo = "";
 
-        String identificador = (String) identificadorInfo.get(2);
-        String asignacion = (String) asignacionInfo.get(2);
-        String valor = (String) valorInfo.get(2);
+        String trimmedValor = valor.trim();
+
+        // Validar la estructura de valor para los ejemplos específicos
+        if (trimmedValor.matches("\".*\"")) {
+            tipo = "Cadena de texto";
+        } else if (trimmedValor.matches("\\d+")) {
+            tipo = "Número entero";
+        } else if (trimmedValor.matches("\\{.*\\}")) {
+            tipo = "Diccionario";
+        } else {
+            tipo = "Error: Estructura no válida";
+        }
 
         System.out.println("Declaración de Variable:");
-        System.out.println("Identificador: " + identificador);
-        System.out.println("Operador de Asignación: " + asignacion);
-        System.out.println("Valor: " + valor);
-
-        indiceActual += 3;
-        mostrarBloqueDeCodigo(indiceActual, indiceActual);
-    }
-
-    private void procesarCicloFor() {
-        List<Object> forTokenInfo = tablaToken.get(indiceActual);
-        List<Object> variableInfo = tablaToken.get(indiceActual + 1);
-        List<Object> inTokenInfo = tablaToken.get(indiceActual + 2);
-        List<Object> rangeTokenInfo = tablaToken.get(indiceActual + 3);
-        List<Object> dosPuntosInfo = tablaToken.get(indiceActual + 4);
-
-        String forToken = (String) forTokenInfo.get(2);
-        String variable = (String) variableInfo.get(2);
-        String inToken = (String) inTokenInfo.get(2);
-        String rangeToken = (String) rangeTokenInfo.get(2);
-        String dosPuntos = (String) dosPuntosInfo.get(2);
-
-        System.out.println("Ciclo For:");
-        System.out.println("Token 'for': " + forToken);
-        System.out.println("Variable: " + variable);
-        System.out.println("Token 'in': " + inToken);
-        System.out.println("Token 'range': " + rangeToken);
-        System.out.println("Token ':': " + dosPuntos);
-
-        indiceActual += 5;
-        mostrarBloqueDeCodigo(indiceActual, indiceActual);
-    }
-
-    private void procesarCicloWhile() {
-        List<Object> whileTokenInfo = tablaToken.get(indiceActual);
-        List<Object> condicionInfo = tablaToken.get(indiceActual + 1);
-        List<Object> dosPuntosInfo = tablaToken.get(indiceActual + 2);
-
-        String whileToken = (String) whileTokenInfo.get(2);
-        String condicion = (String) condicionInfo.get(2);
-        String dosPuntos = (String) dosPuntosInfo.get(2);
-
-        System.out.println("Ciclo While:");
-        System.out.println("Token 'while': " + whileToken);
-        System.out.println("Condición: " + condicion);
-        System.out.println("Token ':': " + dosPuntos);
-
-        indiceActual += 3;
-        mostrarBloqueDeCodigo(indiceActual, indiceActual);
-    }
-
-    private void procesarDefinicionFuncion() {
-        List<Object> defTokenInfo = tablaToken.get(indiceActual);
-        List<Object> nombreFuncionInfo = tablaToken.get(indiceActual + 1);
-        List<Object> parentesisAbreInfo = tablaToken.get(indiceActual + 2);
-        List<Object> parametroInfo = tablaToken.get(indiceActual + 3);
-        List<Object> parentesisCierraInfo = tablaToken.get(indiceActual + 4);
-        List<Object> dosPuntosInfo = tablaToken.get(indiceActual + 5);
-
-        String defToken = (String) defTokenInfo.get(2);
-        String nombreFuncion = (String) nombreFuncionInfo.get(2);
-        String parentesisAbre = (String) parentesisAbreInfo.get(2);
-        String parametro = (String) parametroInfo.get(2);
-        String parentesisCierra = (String) parentesisCierraInfo.get(2);
-        String dosPuntos = (String) dosPuntosInfo.get(2);
-
-        System.out.println("Definición de Función:");
-        System.out.println("Token 'def': " + defToken);
-        System.out.println("Nombre de la función: " + nombreFuncion);
-        System.out.println("Token '(': " + parentesisAbre);
-        System.out.println("Parámetro: " + parametro);
-        System.out.println("Token ')': " + parentesisCierra);
-        System.out.println("Token ':': " + dosPuntos);
-
-        indiceActual += 6;
-        mostrarBloqueDeCodigo(indiceActual, indiceActual);
+        System.out.println("  Identificador: " + identificador);
+        System.out.println("  Valor: " + valor);
+        System.out.println("  Tipo: " + tipo);
     }
 
 }

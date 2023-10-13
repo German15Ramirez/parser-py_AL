@@ -4,6 +4,7 @@
  */
 package FrontEnd;
 
+import BackEnd.Herramientas.OpenFile;
 import BackEnd.Herramientas.*;
 import BackEnd.Herramientas.NumeracionColumnas;
 import BackEnd.Herramientas.TokenType.TypeErrorLexico;
@@ -92,10 +93,10 @@ public class EntornoVisual extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 90, 30));
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 110, 40));
 
         jButton2.setText("Generar Grafico");
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 140, 30));
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 0, 160, 40));
 
         jButton3.setText("Ayuda");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -103,7 +104,7 @@ public class EntornoVisual extends javax.swing.JFrame {
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 10, 90, 30));
+        jPanel1.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 0, 110, 40));
 
         jButton4.setText("Acerca de");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -111,7 +112,7 @@ public class EntornoVisual extends javax.swing.JFrame {
                 jButton4ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 10, 110, 30));
+        jPanel1.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 0, 130, 40));
 
         jButton5.setBackground(new java.awt.Color(0, 204, 0));
         jButton5.setFont(new java.awt.Font("Bitstream Charter", 1, 24)); // NOI18N
@@ -122,18 +123,19 @@ public class EntornoVisual extends javax.swing.JFrame {
                 jButton5ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 40, -1, -1));
+        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 0, 140, 40));
 
         jTextPane1.setFont(new java.awt.Font("SansSerif", 0, 16)); // NOI18N
         jScrollPane1.setViewportView(jTextPane1);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 980, 880));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, 1190, 920));
 
         jLabel3.setBackground(new java.awt.Color(0, 255, 255));
+        jLabel3.setFont(new java.awt.Font("sansserif", 0, 15)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel3.setText("Columna = ");
+        jLabel3.setText("Columna No. = ");
         jLabel3.setOpaque(true);
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, -1, -1));
 
         jButton6.setText("Reportes Y Mas");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -141,10 +143,10 @@ public class EntornoVisual extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 10, -1, 30));
+        jPanel1.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 0, 160, 40));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/binary-code-background-digital-binary-data-with-streaming-digital-code-futuristic-cyberspace_1.jpg"))); // NOI18N
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 980));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1210, 980));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -199,6 +201,7 @@ public class EntornoVisual extends javax.swing.JFrame {
                 filteredErrorList.add(errorInfo);
             }
         }
+        
         resaltarSintaxis();
         System.out.println("Tokens del Lexico: " + filteredTokenList + "\n");
         System.out.println("Tokens Errores Lexicos: " + filteredErrorList + "\n");

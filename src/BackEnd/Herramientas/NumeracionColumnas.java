@@ -51,9 +51,8 @@ public class NumeracionColumnas extends JPanel
         lineNumber = caretLine;
         columnNumber = caretPosition - startOffset;
 
-        jLabel.setText("Columna: " + columnNumber);
+        jLabel.setText("Columna No.: " + columnNumber + " Fila No.: "+ lineNumber);
         
-        //lineNumber indica la fila
     }
 
 public int getLineNumber() {

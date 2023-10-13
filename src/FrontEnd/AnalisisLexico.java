@@ -61,7 +61,7 @@ public class AnalisisLexico {
             String valor = token.value.toString();
            
             if(token.type instanceof TypeAritmetico){
-                tipo = "TypeArtimetico";
+                tipo = "TypeAritmetico";
                 patron = "[" + token.value.toString() + "]";
             }
             if(token.type instanceof TypeComentario){

@@ -55,124 +55,151 @@ public class Lexer {
     }
 
     public Token nextToken() throws IOException {
-        try {
-            while (currentChar != -1) {
-                char current = currentChar();
-                if (current == '*') {
+    try {
+        while (currentChar != -1) {
+            char current = currentChar();
+            if (current == '*') {
+                advance();
+                char nextChar = currentChar();
+                if (nextChar == '=') {
                     advance();
-                    char nextChar = currentChar();
-                    if (nextChar == '=') {
+                    return new Token(TypeAsignacion.MULTIPLICACION_ASIGNACION, "*=");
+                } else if (nextChar == '*') {
+                    advance();
+                    char nextNextChar = currentChar();
+                    if (nextNextChar == '=') {
                         advance();
-                        return new Token(TypeAsignacion.MULTIPLICACION_ASIGNACION, "*=");
-                    } else if (nextChar == '*') {
-                        advance();
-                        advance();
+                        return new Token(TypeAsignacion.EXPONENTE_ASIGNACION, "**=");
+                    } else {
                         return new Token(TypeAritmetico.EXPONENTE, "**");
-                    } else {
-                        return new Token(TypeAritmetico.MULTIPLICACION, "*");
-                    }
-                } else if (current == '-') {
-                    advance();
-                    char nextChar = currentChar();
-                    if (nextChar == '=') {
-                        advance();
-                        return new Token(TypeAsignacion.RESTA_ASIGNACION, "-=");
-                    } else {
-                        return new Token(TypeAritmetico.RESTA, "-");
-                    }
-                } else if (Character.isLetter(current)) {
-                    return readLetter();
-                } else if (Character.isDigit(current)) {
-                    return readInteger();
-                } else if (current == '"') {
-                    advance();
-                    return cadenaComDob(current);
-                } else if (current == '\'') {
-                    advance();
-                    return cadena(current);
-                } else if (isSingleCharacterToken(current)) {
-                    advance();
-                    return getSingleCharacterToken(current);
-                } else if (current == ' ') {
-                    advance();
-                    return new Token(TypeSpace.SPACE, " ");
-                } else if (current == '\n') {
-                    advance();
-                    fila++;
-                    columna = 0; // Reiniciar columna al inicio de una nueva línea
-                    return new Token(TypeSpace.SALTO, "SALTO");
-                } else if (current == '#') {
-                    advance();
-                    return comentario();
-                } else if (current == '=') {
-                    advance();
-                    char nextChar = currentChar();
-                    if (nextChar == '=') {
-                        advance();
-                        return new Token(TypeComparacion.IGUAL_QUE, "==");
-                    } else {
-                        return new Token(TypeAsignacion.ASIGNACION, "=");
-                    }
-                } else if (current == '!') {
-                    advance();
-                    char nextChar = currentChar();
-                    if (nextChar == '=') {
-                        advance();
-                        return new Token(TypeComparacion.DIFERENTE_DE, "!=");
-                    } else {
-                        return new Token(TypeAsignacion.ASIGNACION, "!");
-                    }
-                } else if (current == '>') {
-                    advance();
-                    char nextChar = currentChar();
-                    if (nextChar == '=') {
-                        advance();
-                        return new Token(TypeComparacion.MAYOR_O_IGUAL_QUE, ">=");
-                    } else {
-                        return new Token(TypeComparacion.MAYOR_QUE, ">");
-                    }
-                } else if (current == '<') {
-                    advance();
-                    char nextChar = currentChar();
-                    if (nextChar == '=') {
-                        advance();
-                        return new Token(TypeComparacion.MENOR_O_IGUAL_QUE, "<=");
-                    } else {
-                        return new Token(TypeComparacion.MENOR_QUE, "<");
-                    }
-                } else if (current == '/') {
-                    advance();
-                    char nextChar = currentChar();
-                    if (nextChar == '/') {
-                        advance();
-                        return new Token(TypeAritmetico.DIVISION, "//");
-                    } else {
-                        return new Token(TypeAritmetico.DIVISION, "/");
                     }
                 } else {
-                    // Error: Carácter desconocido
-                    char unknownChar = currentChar();
+                    return new Token(TypeAritmetico.MULTIPLICACION, "*");
+                }
+            } else if (current == '-') {
+                advance();
+                char nextChar = currentChar();
+                if (nextChar == '=') {
                     advance();
-                    if (!ignoreErrors) {
-                        // Devolver un token de error léxico
-                        return new Token(TypeErrorLexico.ERROR_LEXICO, "" + unknownChar);
-                    }
+                    return new Token(TypeAsignacion.RESTA_ASIGNACION, "-=");
+                } else {
+                    return new Token(TypeAritmetico.RESTA, "-");
+                }
+            } else if (current == '+') {
+                advance();
+                char nextChar = currentChar();
+                if (nextChar == '=') {
+                    advance();
+                    return new Token(TypeAsignacion.SUMA_ASIGNACION, "+=");
+                } else {
+                    return new Token(TypeAritmetico.SUMA, "+");
+                }
+            } else if (current == '/') {
+                advance();
+                char nextChar = currentChar();
+                if (nextChar == '=') {
+                    advance();
+                    return new Token(TypeAsignacion.DIVISION_ASIGNACION, "/=");
+                } else if (nextChar == '/') {
+                    advance();
+                    return new Token(TypeAritmetico.DIVISION, "//");
+                } else {
+                    return new Token(TypeAritmetico.DIVISION, "/");
+                }
+            } else if (current == '%') {
+                advance();
+                char nextChar = currentChar();
+                if (nextChar == '=') {
+                    advance();
+                    return new Token(TypeAsignacion.MODULO_ASIGNACION, "%=");
+                } else {
+                    return new Token(TypeAritmetico.MODULO, "%");
+                }
+            } else if (Character.isLetter(current)) {
+                return readLetter();
+            } else if (Character.isDigit(current)) {
+                return readInteger();
+            } else if (current == '"') {
+                advance();
+                return cadenaComDob(current);
+            } else if (current == '\'') {
+                advance();
+                return cadena(current);
+            } else if (isSingleCharacterToken(current)) {
+                advance();
+                return getSingleCharacterToken(current);
+            } else if (current == ' ') {
+                advance();
+                return new Token(TypeSpace.SPACE, " ");
+            } else if (current == '\n') {
+                advance();
+                fila++;
+                columna = 0; // Reiniciar columna al inicio de una nueva línea
+                return new Token(TypeSpace.SALTO, "SALTO");
+            } else if (current == '#') {
+                advance();
+                return comentario();
+            } else if (current == '=') {
+                advance();
+                char nextChar = currentChar();
+                if (nextChar == '=') {
+                    advance();
+                    return new Token(TypeComparacion.IGUAL_QUE, "==");
+                } else {
+                    return new Token(TypeAsignacion.ASIGNACION, "=");
+                }
+            } else if (current == '!') {
+                advance();
+                char nextChar = currentChar();
+                if (nextChar == '=') {
+                    advance();
+                    return new Token(TypeComparacion.DIFERENTE_DE, "!=");
+                } else {
+                    return new Token(TypeAsignacion.ASIGNACION, "!");
+                }
+            } else if (current == '>') {
+                advance();
+                char nextChar = currentChar();
+                if (nextChar == '=') {
+                    advance();
+                    return new Token(TypeComparacion.MAYOR_O_IGUAL_QUE, ">=");
+                } else {
+                    return new Token(TypeComparacion.MAYOR_QUE, ">");
+                }
+            } else if (current == '<') {
+                advance();
+                char nextChar = currentChar();
+                if (nextChar == '=') {
+                    advance();
+                    return new Token(TypeComparacion.MENOR_O_IGUAL_QUE, "<=");
+                } else {
+                    return new Token(TypeComparacion.MENOR_QUE, "<");
+                }
+            } else {
+                // Error: Carácter desconocido
+                char unknownChar = currentChar();
+                advance();
+                if (!ignoreErrors) {
+                    // Devolver un token de error léxico
+                    return new Token(TypeErrorLexico.ERROR_LEXICO, "" + unknownChar);
                 }
             }
-            advance();
-        } catch (LexicalError lexError) {
-            // Manejar el error léxico, por ejemplo, imprimir un mensaje de error
-            System.err.println("Error léxico: " + lexError.getMessage());
-            // Continuar analizando el código
-            if (!ignoreErrors) {
-                advance();
-            }
         }
-        fila++;
-        columna = 0;
-
-        return new Token(TypeSpace.FINAL_ARCHIVE, "");
+        advance();
+    } catch (LexicalError lexError) {
+        // Manejar el error léxico, por ejemplo, imprimir un mensaje de error
+        System.err.println("Error léxico: " + lexError.getMessage());
+        // Continuar analizando el código
+        if (!ignoreErrors) {
+            advance();
+        }
     }
+    fila++;
+    columna = 0;
+
+    return new Token(TypeSpace.FINAL_ARCHIVE, "");
+}
+
 
     private boolean isSingleCharacterToken(char current) {
         return "(){}[];,:+-%".contains(String.valueOf(current));
@@ -312,94 +339,97 @@ public class Lexer {
     }
 
     public Token comentario() {
-        StringBuilder value = new StringBuilder();
+    StringBuilder value = new StringBuilder();
 
-        try {
-            while (currentChar() != -1 && currentChar() != '\n') {
-                if (currentChar() == '#') {
-                    break;  // Cerrar el comentario si se encuentra otro "#"
-                }
-                value.append(currentChar());
-                advance();
+    try {
+        while (currentChar() != -1) {
+            char current = currentChar();
+            if (current == '#') {
+                // No cierres el comentario si se encuentra otro "#", simplemente agrégalo al valor
+                value.append(current);
+            } else if (current == '\n') {
+                // Cerrar el comentario al encontrar un salto de línea y terminar el bucle
+                break;
+            } else {
+                // Agregar cualquier otro carácter al valor del comentario
+                value.append(current);
             }
-
-            if (currentChar() == '#') {
-                value.append(currentChar());
-                advance();  // Avanzar después del último "#" encontrado
-            }
-
-            return new Token(TypeComentario.COMENTARIO, "#" + value.toString());
-        } catch (IOException e) {
-            // Manejar la excepción adecuadamente
-            e.printStackTrace();
+            advance();
         }
 
-        return new Token(TypeErrorLexico.ERROR_LEXICO, value.toString());
+        return new Token(TypeComentario.COMENTARIO, "#" + value.toString());
+    } catch (IOException e) {
+        // Manejar la excepción adecuadamente
+        e.printStackTrace();
     }
+
+    return new Token(TypeErrorLexico.ERROR_LEXICO, value.toString());
+}
 
     public Token cadena(char current) throws LexicalError, IOException {
-        StringBuilder value = new StringBuilder();
-        value.append(current);
+    StringBuilder value = new StringBuilder();
+    value.append(current);
 
-        int espacioCount = 0; // Contador para rastrear espacios en blanco
+    int espacioCount = 0; // Contador para rastrear espacios en blanco
 
-        while (currentChar() != -1 && (currentChar() != '\'' || espacioCount >= 3) && currentChar() != '\n') {
-            if (currentChar() == ' ') {
-                espacioCount++;
-            } else {
-                espacioCount = 0; // Reiniciar el contador de espacios
-            }
-
-            value.append(currentChar());
-            advance();
-        }
-
-        if (currentChar() == '\'') {
-            value.append(currentChar());
-            advance();
-            if (espacioCount < 3) {
-                return new Token(TypeConstante.CADENA, value.toString());
-            } else {
-                // Manejar el error léxico si la cadena supera el límite de caracteres debido a espacios en blanco
-                throw new LexicalError("Cadena excede el límite de caracteres en fila " + fila + " columna " + columna);
-            }
+    while (currentChar() != -1 && (currentChar() != '\'' || espacioCount >= 3) && currentChar() != '\n') {
+        if (currentChar() == ' ') {
+            espacioCount++;
         } else {
-            // Manejar el error léxico si la cadena no se cierra correctamente
-            throw new LexicalError("Cadena no cerrada correctamente en fila " + fila + " columna " + columna);
+            espacioCount = 0; // Reiniciar el contador de espacios
         }
+
+        value.append(currentChar());
+        advance();
     }
 
-    public Token cadenaComDob(char current) throws LexicalError, IOException {
-        StringBuilder value = new StringBuilder();
-        value.append(current);
-
-        int espacioCount = 0; // Contador para rastrear espacios en blanco
-
-        while (currentChar() != -1 && (currentChar() != '"' || espacioCount >= 3)) {
-            if (currentChar() == ' ') {
-                espacioCount++;
-            } else {
-                espacioCount = 0; // Reiniciar el contador de espacios
-            }
-
-            value.append(currentChar());
-            advance();
-        }
-
-        if (currentChar() == '"') {
-            value.append(currentChar());
-            advance();
-            if (espacioCount < 3) {
-                return new Token(TypeConstante.CADENA, value.toString());
-            } else {
-                // Manejar el error léxico si la cadena con comillas dobles supera el límite de caracteres debido a espacios en blanco
-                throw new LexicalError("Cadena con comillas dobles excede el límite de caracteres en fila " + fila + " columna " + columna);
-            }
+    if (currentChar() == '\'') {
+        value.append(currentChar());
+        advance();
+        if (espacioCount < 3) {
+            return new Token(TypeConstante.CADENA, value.toString());
         } else {
-            // Manejar el error léxico si la cadena con comillas dobles no se cierra correctamente
-            throw new LexicalError("Cadena con comillas dobles no cerrada correctamente en fila " + fila + " columna " + columna);
+            // Manejar el error léxico si la cadena supera el límite de caracteres debido a espacios en blanco
+            throw new LexicalError("Cadena excede el límite de caracteres en fila " + fila + " columna " + columna);
         }
+    } else {
+        // Manejar el error léxico si la cadena no se cierra correctamente
+        throw new LexicalError("Cadena no cerrada correctamente en fila " + fila + " columna " + columna);
     }
+}
+
+public Token cadenaComDob(char current) throws LexicalError, IOException {
+    StringBuilder value = new StringBuilder();
+    value.append(current);
+
+    int espacioCount = 0; // Contador para rastrear espacios en blanco
+
+    while (currentChar() != -1 && (currentChar() != '"' || espacioCount >= 3)) {
+        if (currentChar() == ' ') {
+            espacioCount++;
+        } else {
+            espacioCount = 0; // Reiniciar el contador de espacios
+        }
+
+        value.append(currentChar());
+        advance();
+    }
+
+    if (currentChar() == '"') {
+        value.append(currentChar());
+        advance();
+        if (espacioCount < 3) {
+            return new Token(TypeConstante.CADENA, value.toString());
+        } else {
+            // Manejar el error léxico si la cadena con comillas dobles supera el límite de caracteres debido a espacios en blanco
+            throw new LexicalError("Cadena con comillas dobles excede el límite de caracteres en fila " + fila + " columna " + columna);
+        }
+    } else {
+        // Manejar el error léxico si la cadena con comillas dobles no se cierra correctamente
+        throw new LexicalError("Cadena con comillas dobles no cerrada correctamente en fila " + fila + " columna " + columna);
+    }
+}
+
 
     public class LexicalError extends Exception {
 
