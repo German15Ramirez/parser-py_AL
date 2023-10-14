@@ -345,7 +345,6 @@ public class Lexer {
         while (currentChar() != -1) {
             char current = currentChar();
             if (current == '#') {
-                // No cierres el comentario si se encuentra otro "#", simplemente agrégalo al valor
                 value.append(current);
             } else if (current == '\n') {
                 // Cerrar el comentario al encontrar un salto de línea y terminar el bucle

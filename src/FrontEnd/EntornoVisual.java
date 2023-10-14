@@ -27,6 +27,11 @@ import javax.swing.text.StyledDocument;
  */
 public class EntornoVisual extends javax.swing.JFrame {
 
+    public static ErroresSintacticos erroresSintacticos;
+    public static ListaDeInstruccionesBC listaDeInstruccionesBC;
+    public static ParametrosDeUnaFuncion parametrosDeUnaFuncion;
+    public static TablaDeSBC tablaDeSBC;
+    public static TablaDeSG tablaDeSG;
     public static ErroresLexicos erroresLexicos;
     public static TokensIdentificados tokensIdentificados;
     private String text;
@@ -34,6 +39,7 @@ public class EntornoVisual extends javax.swing.JFrame {
     public static HashMap<Object, Object> mapTokens;
     public static List<List<Object>> infoTabla = new ArrayList<>();
     public static List<List<Object>> tablaToken = new ArrayList<>();
+    public static List<String> impresionesSintaxis = new ArrayList<>();
     public static List<Object> newList = new ArrayList<>();
     public static List<List<Object>> newListOfLists = new ArrayList<>();
 
@@ -50,6 +56,16 @@ public class EntornoVisual extends javax.swing.JFrame {
         tokensIdentificados.setVisible(true);
         erroresLexicos = new ErroresLexicos();
         erroresLexicos.setVisible(true);
+        erroresSintacticos = new ErroresSintacticos();
+        erroresSintacticos.setVisible(true);
+        listaDeInstruccionesBC = new ListaDeInstruccionesBC();
+        listaDeInstruccionesBC.setVisible(true);
+        parametrosDeUnaFuncion = new ParametrosDeUnaFuncion();
+        parametrosDeUnaFuncion.setVisible(true);
+        tablaDeSBC = new TablaDeSBC();
+        tablaDeSBC.setVisible(true);
+        tablaDeSG = new TablaDeSG();
+        tablaDeSG.setVisible(true);
     }
 
     public static TokensIdentificados getTokensIdentificados() {
@@ -58,6 +74,23 @@ public class EntornoVisual extends javax.swing.JFrame {
 
     public static ErroresLexicos getErroresLexicos() {
         return erroresLexicos;
+    }
+
+   
+    public static ErroresSintacticos getErroresSintacticos() {
+        return erroresSintacticos;
+    }
+    public static ListaDeInstruccionesBC getListaDeInstruccionesBC() {
+        return listaDeInstruccionesBC;
+    }
+    public static ParametrosDeUnaFuncion getParametrosDeUnaFuncion() {
+        return parametrosDeUnaFuncion;
+    }
+    public static TablaDeSBC getTablaDeSBC() {
+        return tablaDeSBC;
+    }
+    public static TablaDeSG getTablaDeSG() {
+        return tablaDeSG;
     }
 
     /**
@@ -181,6 +214,7 @@ public class EntornoVisual extends javax.swing.JFrame {
 
         tablaToken = analyzer.getTablaToken();
         infoTabla = analyzer.getInfoTabla();
+        
         List<List<Object>> filteredTokenList = new ArrayList<>();
         List<List<Object>> filteredErrorList = new ArrayList<>();
         //coloreo de tokens
@@ -201,15 +235,18 @@ public class EntornoVisual extends javax.swing.JFrame {
                 filteredErrorList.add(errorInfo);
             }
         }
-        
+
         resaltarSintaxis();
         System.out.println("Tokens del Lexico: " + filteredTokenList + "\n");
         System.out.println("Tokens Errores Lexicos: " + filteredErrorList + "\n");
         actualizarTablaEnTokensIdentificados(filteredTokenList);
         actualizarTablaEnErroresLexicos(filteredErrorList);
         Syntactic sintactico = new Syntactic(tablaToken);
-        // Llamar al método analizar para iniciar el análisis sintáctico
         sintactico.analizar();
+        List<String> impresiones = sintactico.getImpresiones();
+for (String impresion : impresiones) {
+    actualizarTablaEnTablaDeSG(impresiones);
+}
     }//GEN-LAST:event_jButton5ActionPerformed
 
     public void resaltarSintaxis() {
@@ -223,6 +260,13 @@ public class EntornoVisual extends javax.swing.JFrame {
             tokensIdentificados.actualizarTabla(tokenList);
         } else {
             System.err.println("TokensIdentificados no está inicializado.");
+        }
+    }
+    public void actualizarTablaEnTablaDeSG(List<String> impresiones) {
+        if (tablaDeSG != null) {
+            tablaDeSG.actualizarTabla(impresiones);
+        } else {
+            System.err.println("Tabla de Simbolos Globales no está inicializado.");
         }
     }
 
@@ -310,12 +354,6 @@ public class EntornoVisual extends javax.swing.JFrame {
             }
 
         });
-        TokensIdentificados tokensIdentificados = new TokensIdentificados();
-
-        tokensIdentificados.setVisible(true);
-        ErroresLexicos erroresLexicos = new ErroresLexicos();
-
-        erroresLexicos.setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

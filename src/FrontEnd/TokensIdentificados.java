@@ -136,7 +136,6 @@ public class TokensIdentificados extends javax.swing.JPanel {
                                 .addComponent(filtroComparacion)
                                 .addComponent(filtroConstante)
                                 .addComponent(filtroLogico)
-                                
                                 .addComponent(filtroOtro)
                         )
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 988, Short.MAX_VALUE)
@@ -155,7 +154,6 @@ public class TokensIdentificados extends javax.swing.JPanel {
                                         .addComponent(filtroComparacion)
                                         .addComponent(filtroConstante)
                                         .addComponent(filtroLogico)
-                                        
                                         .addComponent(filtroOtro)
                                 )
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 585, Short.MAX_VALUE)

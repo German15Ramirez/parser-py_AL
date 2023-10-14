@@ -42,7 +42,7 @@ public class ErroresLexicos extends javax.swing.JPanel {
         model.setRowCount(0); // Borra todas las filas existentes en la tabla
 
         for (List<Object> fila : datos) {
-            model.addRow(fila.toArray()); // Agrega los nuevos datos a la tabla
+            model.addRow(fila.toArray()); // Agregados los nuevos datos a la tabla
         }
     }
 
